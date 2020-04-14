@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 /subtitle_data/
 /vector_models/
+/.idea/
