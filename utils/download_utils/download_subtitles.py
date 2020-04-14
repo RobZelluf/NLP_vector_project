@@ -50,7 +50,7 @@ def download_all_subtitles():
     if not os.path.exists("subtitle_data"):
         os.mkdir("subtitle_data")
 
-    with open("utils/subtitle_download_data.csv", "r") as f:
+    with open("utils/download_utils/subtitle_download_data.csv", "r") as f:
         datasets = csv.reader(f)
         datasets = list(datasets)
 

@@ -1,8 +1,7 @@
-import os
-import csv
-from utils.download_utils import download_url
+from utils.download_utils.download_utils import download_url
 import bz2
 from utils.utils import language_map
+import os
 
 
 def get_wikipedia2vec_url(language, dim=300):
@@ -52,21 +51,3 @@ def extract_wikipedia2vec_files():
                             new_file.write(data)
 
                 os.remove(DIR + "/" + file)
-
-
-def download_all_vector_models():
-    with open("utils/subtitle_download_data.csv", "r") as f:
-        data = csv.reader(f)
-        data = list(data)
-        languages = [x[0] for x in data]
-        languages.append("english")
-
-    if not os.path.exists("vector_models"):
-        os.mkdir("vector_models")
-
-    for language in languages:
-        if not os.path.exists("vector_models/" +language):
-            os.mkdir("vector_models/" + language)
-
-    download_wikipedia2vec(languages, 100)
-    extract_wikipedia2vec_files()
