@@ -3,8 +3,6 @@ import numpy as np
 import pickle as p
 import os
 
-oov_word = 'nederlandse'
-
 
 class Embedding:
     def __init__(self, lang, type="w2v", dim=100, max_vocab=200000):
@@ -75,6 +73,3 @@ def read_vector_file(filename, lang_full, max_vocab):
 def load_vector_dict(path):
     with open(path, "rb") as f:
         return p.load(f)
-
-
-embedding = Embedding("en", "w2v")
