@@ -1,6 +1,6 @@
-from utils.download_utils.download_utils import download_url
+from utilities.download_utils.download_utils import download_url
 import bz2
-from utils.utils import language_map
+from utilities.utils import language_map
 import os
 
 
