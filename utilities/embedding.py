@@ -1,8 +1,8 @@
-from utils import language_map
 import numpy as np
 import pickle as p
 import os
-
+import sys
+from utilities.utils import language_map
 
 class Embedding:
     def __init__(self, lang, type="w2v", dim=100, max_vocab=50000):
@@ -24,19 +24,21 @@ class Embedding:
         if type == "glove":
             self.get_glove_embeddings()
 
-    def get_w2v_embeddings(self):
-        self.pickle_filename = "w2v_embedding_d" + str(self.dim) + '.p'
-        self.filename = self.lang_short + "wiki_20180420_" + str(self.dim) + "d.txt"
-        if self.pickle_filename in os.listdir(self.dir):
-            self.vector_dic = load_vector_dict(self.dir + "/" + self.pickle_filename)
+        if type == "ft":
+            if dim != 300:
+                print("embedding.dim set to 300; only dimension available!")
+                self.dim = 300
 
-        else:
-            self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
-            self.save_pickle()
+            self.get_ft_embeddings()
+
+        test_vec = next(iter(self.vector_dic.values()))
+        if test_vec.size != dim:
+            print("Vector size different than desired dim = ", dim, file=sys.stderr)
 
     def save_pickle(self):
-        with open(self.dir + "/" + self.pickle_filename, "wb") as f:
-            p.dump(self.vector_dic, f)
+        if self.vector_dic:
+            with open(self.dir + "/" + self.pickle_filename, "wb") as f:
+                p.dump(self.vector_dic, f)
 
     def find_oov_word(self, oov_word):
         with open("vector_models/" + self.lang_full + "/" + self.filename) as f:
@@ -70,6 +72,26 @@ class Embedding:
             self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
             self.save_pickle()
 
+    def get_ft_embeddings(self):
+        self.pickle_filename = "ft_embedding_d" + str(self.dim) + '.p'
+        self.filename = "cc." + self.lang_short + ".300.vec"
+        if self.pickle_filename in os.listdir(self.dir):
+            self.vector_dic = load_vector_dict(self.dir + "/" + self.pickle_filename)
+
+        else:
+            self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
+            self.save_pickle()
+
+    def get_w2v_embeddings(self):
+        self.pickle_filename = "w2v_embedding_d" + str(self.dim) + '.p'
+        self.filename = self.lang_short + "wiki_20180420_" + str(self.dim) + "d.txt"
+        if self.pickle_filename in os.listdir(self.dir):
+            self.vector_dic = load_vector_dict(self.dir + "/" + self.pickle_filename)
+
+        else:
+            self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
+            self.save_pickle()
+
     def get_closest_word(self, query_vector):
         if query_vector.size != self.dim:
             return
@@ -88,7 +110,13 @@ class Embedding:
 def read_vector_file(filename, lang_full, max_vocab):
     vector_dic = {}
 
-    with open("vector_models/" + lang_full + "/" + filename) as f:
+    path = "vector_models/" + lang_full + "/" + filename
+
+    if not os.path.exists(path):
+        print("Embedding file not downloaded!", file=sys.stderr)
+        return
+
+    with open(path) as f:
         for i in range(max_vocab):
             line = f.readline().rstrip()
             line = line.split(' ')
