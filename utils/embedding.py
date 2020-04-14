@@ -45,7 +45,8 @@ class Embedding:
                 line = line.rstrip()
                 line = line.split(' ')
                 if line[0] == oov_word:
-                    vec = np.array(line[1:])
+                    vec = [float(x) for x in line[1:]]
+                    vec = np.array(vec)
                     self.vector_dic[oov_word] = vec
                     self.save_pickle()
                     return vec
@@ -86,6 +87,7 @@ def read_vector_file(filename, lang_full, max_vocab):
             if '\n' in line[-1]:
                 line[-1] = line[-1][:-2]
 
+            vec = [float(x) for x in vec]
             vector_dic[word] = np.array(vec)
 
         return vector_dic
