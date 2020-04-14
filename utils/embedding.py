@@ -19,7 +19,6 @@ class Embedding:
             self.pickle_filename = "w2v_embedding_d" + str(dim) + '.p'
             self.filename = lang_short + "wiki_20180420_" + str(dim) + "d.txt"
             if self.pickle_filename in os.listdir(self.dir):
-                print("Dictionary already made!")
                 self.vector_dic = load_vector_dict(self.dir + "/" + self.pickle_filename)
 
             else:
