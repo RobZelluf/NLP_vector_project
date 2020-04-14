@@ -70,6 +70,20 @@ class Embedding:
             self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
             self.save_pickle()
 
+    def get_closest_word(self, query_vector):
+        if query_vector.size != self.dim:
+            return
+
+        closest_word = ''
+        best_distance = 9999
+        for word, vector in self.vector_dic.items():
+            dist = np.linalg.norm(query_vector - vector)
+            if dist < best_distance:
+                best_distance = dist
+                closest_word = word
+
+        return closest_word
+
 
 def read_vector_file(filename, lang_full, max_vocab):
     vector_dic = {}
