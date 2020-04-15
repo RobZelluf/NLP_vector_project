@@ -2,10 +2,12 @@ import csv
 import os
 import requests
 from zipfile import ZipFile
+import gzip
 
 
 def download_url(url, DIR):
-    save_path = DIR + "/subtitle_data.zip"
+    filename = url.split("/")[-1]
+    save_path = DIR + "/" + filename
 
     r = requests.get(url, stream=True)
     with open(save_path, 'wb') as f:
@@ -34,16 +36,30 @@ def extract_files():
     print("\nUnzipping files\n")
     for language_dir in os.listdir("subtitle_data"):
         if os.path.isdir("subtitle_data/" + language_dir):
-            for file in os.listdir("subtitle_data/" + language_dir):
-                ext = os.path.splitext(file)
-                if ext[-1] == '.zip':
-                    print("Unzipping", language_dir)
-                    DIR = "subtitle_data/" + language_dir + "/"
-                    with ZipFile(DIR + file, 'r') as f:
-                        f.extractall(DIR)
+            if language_dir == "english":
 
-                    os.remove(DIR + file)
-                    print("Done unzipping", file)
+                for file in os.listdir("subtitle_data/" + language_dir):
+                    ext = os.path.splitext(file)
+                    if ext[-1] == ".gz":
+                        DIR = "subtitle_data/" + language_dir
+                        new_filename = ext[0]
+                        with gzip.GzipFile(DIR + "/" + file, 'rb') as gzip_file:
+                            with open(DIR + "/" + new_filename, 'wb') as new_file:
+                                for data in iter(lambda: gzip_file.read(1024 * 1024), b''):
+                                    new_file.write(data)
+
+                        os.remove(DIR + "/" + file)
+            else:
+                for file in os.listdir("subtitle_data/" + language_dir):
+                    ext = os.path.splitext(file)
+                    if ext[-1] == '.zip':
+                        print("Unzipping", language_dir)
+                        DIR = "subtitle_data/" + language_dir + "/"
+                        with ZipFile(DIR + file, 'r') as f:
+                            f.extractall(DIR)
+
+                        os.remove(DIR + file)
+                        print("Done unzipping", file)
 
 
 def download_all_subtitles():
