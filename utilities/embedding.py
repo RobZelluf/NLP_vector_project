@@ -124,7 +124,7 @@ def read_vector_file(filename, lang_full, max_vocab):
     path = "vector_models/" + lang_full + "/" + filename
 
     if not os.path.exists(path):
-        print("Embedding file not downloaded!", file=sys.stderr)
+        print("Embedding file not downloaded! Run download_script.py first", file=sys.stderr)
         return
 
     with open(path) as f:
