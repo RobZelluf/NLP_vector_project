@@ -5,6 +5,7 @@ import argparse
 import random
 import math
 import multiprocessing
+import os
 
 
 def get_num_lines(lang):
@@ -35,9 +36,10 @@ def train_chunk(model, language, epochs, start, end):
     model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
-def train(language, dim=100, loops=1, epochs=10, chunks=10):
+def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=True):
     lang_full, lang_short = language_map(language)
     model_name = lang_short + "_d" + str(dim) + ".model"
+    model_path = "vector_models/" + lang_full + "/" + model_name
 
     print("Training on", lang_full, "- Embedding size:", dim, "- Loops:", loops, "- Chunks:", chunks)
 
@@ -49,7 +51,6 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10):
         print("Chunk size too large, set to", int(chunk_size), "with", chunks, "chunks!")
 
     cores = min(8, multiprocessing.cpu_count() - 1)
-
     model = Word2Vec(min_count=20,
                      window=5,
                      size=300,
@@ -58,6 +59,9 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10):
                      workers=cores,
                      sample=6e-5,
                      negative=20)
+
+    if os.path.exists(model_path):
+        model = Word2Vec.load(model_path)
 
     for loop in range(loops):
         chunk_list = list(range(chunks))
@@ -71,7 +75,7 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10):
                 end = (chunk + 1) * chunk_size - 1
 
             train_chunk(model, language, epochs, start, end)
-            model.save("vector_models/" + lang_full + "/" + model_name)
+            model.save(model_path)
             print("Model saved as", model_name)
 
 
@@ -83,13 +87,22 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", type=int, help="Number of epochs per chunk", default=10)
     parser.add_argument("--dim", type=int, help="Embedding dimension", default=300)
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
+    parser.add_argument("--continue_training", type=bool, default=True)
     args = parser.parse_args()
 
     if args.log:
         print("Gensim will output logs!")
         logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
 
-    train(args.language, args.dim, args.loops, args.epochs, args.chunks)
+    if not os.path.exists("vector_models"):
+        os.mkdir("vector_models")
+
+    lang, _ = language_map(args.language)
+
+    if not os.path.exists("vector_models/" + lang):
+        os.mkdir("vector_models/" + lang)
+
+    train(args.language, args.dim, args.loops, args.epochs, args.chunks, args.continue_training)
 
 
 
