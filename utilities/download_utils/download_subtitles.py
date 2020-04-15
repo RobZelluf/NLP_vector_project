@@ -72,6 +72,3 @@ def download_all_subtitles():
 
     download_subtitle_files(datasets)
     extract_files()
-
-
-download_all_subtitles()
