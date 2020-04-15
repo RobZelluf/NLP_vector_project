@@ -44,12 +44,12 @@ def language_map(lang):
 def load_subtitles(lang="nl", size=-1, start=None, end=None):
     lang_full, lang_short = language_map(lang)
 
-    if lang_short == "en":
-        filename = "subtitle_data.txt"
-    else:
-        filename = "OpenSubtitles.en-" + lang_short + "." + lang_short
+    filename = "OpenSubtitles.en"
+    if lang_short is not "en":
+        filename += "-" + lang_short + "." + lang_short
 
     file = "subtitle_data/" + lang_full + "/" + filename
+
     with open(file) as f:
         if start is not None and end is not None:
             subs = []
