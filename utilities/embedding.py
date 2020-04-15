@@ -113,9 +113,9 @@ class Embedding:
 
     def add_special_words(self):
         np.random.seed(92)
-        self.vector_dic["<SOS>"] = (np.random.random(self.dim) - 0.5) / 100
-        self.vector_dic["<EOS>"] = (np.random.random(self.dim) - 0.5) / 100
-        self.vector_dic["<UNK>"] = (np.random.random(self.dim) - 0.5) / 100
+        self.vector_dic["<SOS>"] = np.random.normal(0, 0.01, self.dim)
+        self.vector_dic["<EOS>"] = np.random.normal(0, 0.01, self.dim)
+        self.vector_dic["<UNK>"] = np.random.normal(0, 0.01, self.dim)
 
 
 def read_vector_file(filename, lang_full, max_vocab):
