@@ -59,11 +59,19 @@ class Embedding:
 
         return self.vector_dic["UNK"]
 
-    def __getitem__(self, word):
-        if word in self.vector_dic:
-            return self.vector_dic[word]
-        else:
-            return self.find_oov_word(word)
+    def __getitem__(self, words):
+        if type(words) == str:
+            words = [words]
+
+        embeddings = []
+
+        for word in words:
+            if word in self.vector_dic:
+                embeddings.append(self.vector_dic[word])
+            else:
+                embeddings.append(self.find_oov_word(word))
+
+        return np.array(embeddings)
 
     def get_glove_embeddings(self):
         self.pickle_filename = "glove_embedding_d" + str(self.dim) + '.p'
@@ -149,6 +157,4 @@ def read_vector_file(filename, lang_full, max_vocab):
 def load_vector_dict(path):
     with open(path, "rb") as f:
         return p.load(f)
-
-
 
