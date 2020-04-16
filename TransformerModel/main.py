@@ -44,6 +44,8 @@ if __name__=="__main__":
     translation_model = TransformerModel(
         src_vectorModel=vw_src_model,
         tgt_vectorModel=vw_tgt_model,
+        encoder_save_path="tr_encoder_model.pth",
+        decoder_save_path="tr_decoder_model.pth",
         hidden_size=1024)
 
     # print("+ start TrNN training")

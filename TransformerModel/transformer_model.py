@@ -226,11 +226,15 @@ def convert_src_str_to_index_seq(src_str, src_VecModel):
 
 
 class TransformerModel():
-    def __init__(self, src_vectorModel, tgt_vectorModel, hidden_size):
+    def __init__(self, src_vectorModel, tgt_vectorModel,
+                 encoder_save_path, decoder_save_path,
+                 hidden_size):
         self.encoder = None
         self.decoder = None
         self.src_vm = src_vectorModel
         self.tgt_vm = tgt_vectorModel
+        self.encoder_save_path = encoder_save_path
+        self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
 
     def train(self, filesrc, filetgt, batch_size=64, iters=2):
@@ -288,8 +292,8 @@ class TransformerModel():
 
             print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
 
-        torch.save(self.encoder.state_dict(), "tr_encoder_model.pth")
-        torch.save(self.decoder.state_dict(), "tr_decoder_model.pth")
+        torch.save(self.encoder.state_dict(), self.encoder_save_path)
+        torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
     def load(self, encoder_path, decoder_path):
         self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
