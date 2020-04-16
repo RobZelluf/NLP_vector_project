@@ -39,7 +39,7 @@ def train_chunk(model, language, epochs, start, end):
 def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=True):
     lang_full, lang_short = language_map(language)
     model_name = lang_short + "_d" + str(dim) + ".model"
-    model_path = "vector_models/" + lang_full + "/" + model_name
+    model_path = "trained_models/" + lang_full + "/" + model_name
 
     print("Training on", lang_full, "- Embedding size:", dim, "- Loops:", loops, "- Chunks:", chunks)
 
@@ -70,7 +70,7 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=Tr
         chunk_list = list(range(chunks))
         random.shuffle(chunk_list)
         for i, chunk in enumerate(chunk_list):
-            print("Loop", loop, "/", loops, "- Chunk, ", i + 1, "/", chunks)
+            print("Loop", loop + 1, "/", loops, "- Chunk, ", i + 1, "/", chunks)
             start = chunk * chunk_size
             end = (chunk + 1) * chunk_size - 1
 
@@ -94,13 +94,13 @@ if __name__ == "__main__":
         print("Gensim will output logs!")
         logging.basicConfig(format="%(levelname)s - %(asctime)s: %(message)s", datefmt= '%H:%M:%S', level=logging.INFO)
 
-    if not os.path.exists("vector_models"):
-        os.mkdir("vector_models")
+    if not os.path.exists("trained_models"):
+        os.mkdir("trained_models")
 
     lang, _ = language_map(args.language)
 
-    if not os.path.exists("vector_models/" + lang):
-        os.mkdir("vector_models/" + lang)
+    if not os.path.exists("trained_models/" + lang):
+        os.mkdir("trained_models/" + lang)
 
     train(args.language, args.dim, args.loops, args.epochs, args.chunks, args.continue_training)
 
