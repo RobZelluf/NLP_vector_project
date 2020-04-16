@@ -4,8 +4,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 import TransformerModel.tr_model_utils as tr
-from TransformerModel.const_vars import MAX_LENGTH
-
+from TransformerModel.transformer_dataloader import tr_data_loader
+from TransformerModel.const_vars import *
 
 
 def subsequent_mask(sz):
@@ -54,19 +54,25 @@ class EncoderBlock(nn.Module):
 
 
 class Encoder(nn.Module):
-    def __init__(self, src_vocab_size, n_blocks, n_features, n_heads, n_hidden=64, dropout=0.1):
+    def __init__(self, embedding_vectors, n_blocks, n_heads, n_hidden=64, dropout=0.1):
         """
         Args:
-          src_vocab_size: Number of words in the source vocabulary.
+          embedding_vectors: Vector matrix from gensim pretrained vectors, accessing by model.vectors.
           n_blocks: Number of EncoderBlock blocks.
-          n_features: Number of features to be used for word embedding and further in all layers of the encoder.
           n_heads: Number of attention heads inside the EncoderBlock.
           n_hidden: Number of hidden units in the Feedforward block of EncoderBlock.
           dropout: Dropout level used in EncoderBlock.
+
+          # src_vocab_size: Number of words in the source vocabulary.
+          # n_features: Number of features to be used for word embedding and further in all layers of the encoder.
         """
         super(Encoder, self).__init__()
+        # self.embedding = nn.Embedding(src_vocab_size, n_features)
+        self.embedding = nn.Embedding.from_pretrained(torch.FloatTensor(embedding_vectors))
+        # src_vocab_size = self.embedding.num_embeddings
+        n_features = self.embedding.embedding_dim
         self.n_blocks = n_blocks
-        self.embedding = nn.Embedding(src_vocab_size, n_features)
+
         self.pos_encoding = tr.PositionalEncoding(n_features, dropout=dropout, max_len=MAX_LENGTH)
         encoder_blocks_list = []
         for i in range(self.n_blocks):
@@ -144,19 +150,25 @@ class DecoderBlock(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, tgt_vocab_size, n_blocks, n_features, n_heads, n_hidden=64, dropout=0.1):
+    def __init__(self, embedding_vectors, n_blocks, n_heads, n_hidden=64, dropout=0.1):
         """
         Args:
-          tgt_vocab_size: Number of words in the target vocabulary.
+          embedding_vectors: Vector matrix from gensim pretrained vectors, accessing by model.vectors.
           n_blocks: Number of EncoderBlock blocks.
-          n_features: Number of features to be used for word embedding and further in all layers of the decoder.
           n_heads: Number of attention heads inside the DecoderBlock.
           n_hidden: Number of hidden units in the Feedforward block of DecoderBlock.
           dropout: Dropout level used in DecoderBlock.
+
+          # tgt_vocab_size: Number of words in the target vocabulary.
+          # n_features: Number of features to be used for word embedding and further in all layers of the decoder.
         """
         super(Decoder, self).__init__()
         self.n_blocks = n_blocks
-        self.embedding = nn.Embedding(tgt_vocab_size, n_features)
+        # self.embedding = nn.Embedding(tgt_vocab_size, n_features)
+        self.embedding = nn.Embedding.from_pretrained(torch.FloatTensor(embedding_vectors))
+        tgt_vocab_size = self.embedding.num_embeddings
+        n_features = self.embedding.embedding_dim
+
         self.pos_encoding = tr.PositionalEncoding(n_features, dropout=dropout, max_len=MAX_LENGTH)
         decoder_blocks_list = []
         for i in range(self.n_blocks):
@@ -190,4 +202,78 @@ class Decoder(nn.Module):
             x = self.decoder_blocks[i](y=x, z=z, src_mask=src_mask, tgt_mask=tgt_mask)
         out = self.lsm(self.linear(x))
         return out
+
+
+class TransformerModel():
+    def __init__(self, src_vectorModel, tgt_vectorModel, hidden_size):
+        self.encoder = None
+        self.decoder = None
+        self.src_vm = src_vectorModel
+        self.tgt_vm = tgt_vectorModel
+        self.hidden_size = hidden_size
+
+    def train(self, filesrc, filetgt, batch_size=64, iters=2):
+        self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=16, n_hidden=1024)
+        self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=16, n_hidden=1024)
+
+        self.encoder.to(DEVICE)
+        self.decoder.to(DEVICE)
+
+        parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
+
+        adam = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
+        optimizer = tr.NoamOptimizer(EMBEDDING_VECTOR_SIZE, 2, 10000, adam)
+
+        trainloader = tr_data_loader(
+            src_vectorModel=self.src_vm,
+            tgt_vectorModel=self.tgt_vm,
+            filesrc=filesrc,
+            filetgt=filetgt,
+            batch_size=batch_size,
+            sos_token=SOS_token,
+            eos_token=EOS_token,
+            unk_token=UNK_token
+        )
+
+        self.encoder.train()
+        self.decoder.train()
+
+        tgt_padding_value = self.tgt_vm.vocab.get(EOS_token).index
+
+        for epoch in range(iters):
+            for i, batch in enumerate(trainloader):
+                src_seqs, src_mask, tgt_seqs = batch
+
+                src_seqs = src_seqs.to(DEVICE)
+                src_mask = src_mask.to(DEVICE)
+                tgt_seqs = tgt_seqs.to(DEVICE)
+
+                src_mask = src_mask.t()
+                tgt_input = tgt_seqs[:-1]
+                tgt_output = tgt_seqs[1:]
+
+                encoder_output = self.encoder(src_seqs, src_mask)
+                pred = self.decoder(tgt_input, encoder_output, src_mask)
+
+                output_to_loss = pred.view(pred.size(0) * pred.size(1), -1)
+                target_to_loss = tgt_output.view(tgt_output.size(0) * tgt_output.size(1))
+
+                loss = F.nll_loss(output_to_loss, target_to_loss, ignore_index=tgt_padding_value)
+
+                loss.backward()
+
+                optimizer.step()
+                optimizer.zero_grad()
+
+            print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
+
+        torch.save(self.encoder.state_dict(), "tr_encoder_model.pth")
+        torch.save(self.decoder.state_dict(), "tr_decoder_model.pth")
+
+
+    def translate(self, src_seq):
+
+        return output
+
+
 

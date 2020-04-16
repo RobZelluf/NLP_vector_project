@@ -3,6 +3,20 @@ import math
 import torch
 import torch.nn as nn
 
+def save_model(model, filename):
+    if do_save == 'yes':
+        torch.save(model.state_dict(), filename)
+        print('Model saved to %s.' % (filename))
+    else:
+        print('Model not saved.')
+
+
+def load_model(model, filename, device):
+    model.load_state_dict(torch.load(filename, map_location=lambda storage, loc: storage))
+    print('Model loaded from %s.' % filename)
+    model.to(device)
+    model.eval()
+
 
 class PositionalEncoding(nn.Module):
     """This implementation is the same as in the Annotated transformer blog post

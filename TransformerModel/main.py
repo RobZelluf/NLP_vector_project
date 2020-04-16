@@ -5,14 +5,14 @@ from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
 
 from TransformerModel.transformer_dataloader import tr_data_loader
-
+from TransformerModel.const_vars import *
 from TransformerModel.wvectors_tool import getVectorModel
 
 def extendPretrainedModel(model):
     length = 50
-    model.add('<SOS>', np.random.normal(0, 0.01, length))
-    model.add('<EOS>', np.random.normal(0, 0.01, length))
-    model.add('<UNK>', np.random.normal(0, 0.01, length))
+    model.add(SOS_token, np.random.normal(0, 0.01, length))
+    model.add(EOS_token, np.random.normal(0, 0.01, length))
+    model.add(UNK_token, np.random.normal(0, 0.01, length))
     return model
 
 if __name__=="__main__":
