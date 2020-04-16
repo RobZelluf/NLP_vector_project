@@ -43,14 +43,7 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=Tr
 
     print("Training on", lang_full, "- Embedding size:", dim, "- Loops:", loops, "- Chunks:", chunks)
 
-    num_lines = get_num_lines(language)
-    chunk_size = int(num_lines / chunks)
-    if chunk_size > 5e6:
-        chunk_size = 5e6
-        chunks = int(math.ceil(num_lines / chunk_size))
-        print("Chunk size too large, set to", int(chunk_size), "with", chunks, "chunks!")
-
-    cores = min(8, multiprocessing.cpu_count() - 1)
+    cores = max(1, multiprocessing.cpu_count() - 2)
     model = Word2Vec(min_count=20,
                      window=5,
                      size=300,
@@ -60,8 +53,18 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=Tr
                      sample=6e-5,
                      negative=20)
 
-    if os.path.exists(model_path):
+    if os.path.exists(model_path) and continue_training:
+        print("Continuing training existing model")
         model = Word2Vec.load(model_path)
+
+    model.workers = cores
+
+    num_lines = get_num_lines(language)
+    chunk_size = int(num_lines / chunks)
+    if chunk_size > 5e6:
+        chunk_size = 5e6
+        chunks = int(math.ceil(num_lines / chunk_size))
+        print("Chunk size too large, set to", int(chunk_size), "with", chunks, "chunks!")
 
     for loop in range(loops):
         chunk_list = list(range(chunks))
@@ -69,10 +72,7 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=Tr
         for i, chunk in enumerate(chunk_list):
             print("Loop", loop, "/", loops, "- Chunk, ", i + 1, "/", chunks)
             start = chunk * chunk_size
-            if chunk == chunks - 1:
-                end = num_lines - 1
-            else:
-                end = (chunk + 1) * chunk_size - 1
+            end = (chunk + 1) * chunk_size - 1
 
             train_chunk(model, language, epochs, start, end)
             model.save(model_path)
