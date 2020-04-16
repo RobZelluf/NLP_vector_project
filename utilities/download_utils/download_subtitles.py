@@ -26,7 +26,9 @@ def download_subtitle_files(datasets):
         else:
             if os.listdir(DIR):
                 print(language, "already downloaded")
-                continue
+                inp = input("Download again (y/n)").lower()
+                if inp != "y":
+                    continue
 
         download_url(url, DIR)
         print("Done downloading", language)
@@ -36,30 +38,26 @@ def extract_files():
     print("\nUnzipping files\n")
     for language_dir in os.listdir("subtitle_data"):
         if os.path.isdir("subtitle_data/" + language_dir):
-            if language_dir == "english":
+            for file in os.listdir("subtitle_data/" + language_dir):
+                ext = os.path.splitext(file)
+                if ext[-1] == ".gz":
+                    DIR = "subtitle_data/" + language_dir
+                    new_filename = ext[0]
+                    with gzip.GzipFile(DIR + "/" + file, 'rb') as gzip_file:
+                        with open(DIR + "/" + new_filename, 'wb') as new_file:
+                            for data in iter(lambda: gzip_file.read(1024 * 1024), b''):
+                                new_file.write(data)
 
-                for file in os.listdir("subtitle_data/" + language_dir):
-                    ext = os.path.splitext(file)
-                    if ext[-1] == ".gz":
-                        DIR = "subtitle_data/" + language_dir
-                        new_filename = ext[0]
-                        with gzip.GzipFile(DIR + "/" + file, 'rb') as gzip_file:
-                            with open(DIR + "/" + new_filename, 'wb') as new_file:
-                                for data in iter(lambda: gzip_file.read(1024 * 1024), b''):
-                                    new_file.write(data)
+                    os.remove(DIR + "/" + file)
 
-                        os.remove(DIR + "/" + file)
-            else:
-                for file in os.listdir("subtitle_data/" + language_dir):
-                    ext = os.path.splitext(file)
-                    if ext[-1] == '.zip':
-                        print("Unzipping", language_dir)
-                        DIR = "subtitle_data/" + language_dir + "/"
-                        with ZipFile(DIR + file, 'r') as f:
-                            f.extractall(DIR)
+                if ext[-1] == '.zip':
+                    print("Unzipping", language_dir)
+                    DIR = "subtitle_data/" + language_dir + "/"
+                    with ZipFile(DIR + file, 'r') as f:
+                        f.extractall(DIR)
 
-                        os.remove(DIR + file)
-                        print("Done unzipping", file)
+                    os.remove(DIR + file)
+                    print("Done unzipping", file)
 
 
 def download_all_subtitles():
