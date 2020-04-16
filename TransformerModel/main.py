@@ -46,11 +46,25 @@ if __name__=="__main__":
         tgt_vectorModel=vw_tgt_model,
         hidden_size=1024)
 
-    print("+ start TrNN training")
-    translation_model.train(
-        path_src_train_file,
-        path_tgt_train_file,
-        batch_size=4,
-        iters=2)
+    # print("+ start TrNN training")
+    # translation_model.train(
+    #     path_src_train_file,
+    #     path_tgt_train_file,
+    #     batch_size=4,
+    #     iters=2)
 
+    print("+ Loading model")
+    translation_model.load(
+        encoder_path="tr_encoder_model.pth",
+        decoder_path="tr_decoder_model.pth")
+    print("++ loaded")
+
+    print()
+    tr_input = "I want a dog."
+    tr_res = translation_model.translate(tr_input)
+    print("+ Translation:")
+    print("++ Input:", tr_input)
+    print("++ Output:", tr_res)
+
+    print()
     print("done!")

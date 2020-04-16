@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 
+from gensim.parsing.preprocessing import preprocess_string
+from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
+
 import TransformerModel.tr_model_utils as tr
 from TransformerModel.transformer_dataloader import tr_data_loader
 from TransformerModel.const_vars import *
@@ -204,6 +207,24 @@ class Decoder(nn.Module):
         return out
 
 
+def convert_src_str_to_index_seq(src_str, src_VecModel):
+    src_unk_token_index = src_VecModel.vocab.get(UNK_token).index
+
+    linesrc = preprocess_string(src_str, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
+    linesrc = [*linesrc, EOS_token]
+
+    linesrc_index = []
+    for w in linesrc:
+        vw_index = src_VecModel.vocab.get(w)
+        if vw_index is None:
+            linesrc_index.append(src_unk_token_index)
+        else:
+            linesrc_index.append(vw_index.index)
+
+    src_seq = torch.tensor(linesrc_index).long()
+    return src_seq
+
+
 class TransformerModel():
     def __init__(self, src_vectorModel, tgt_vectorModel, hidden_size):
         self.encoder = None
@@ -270,10 +291,50 @@ class TransformerModel():
         torch.save(self.encoder.state_dict(), "tr_encoder_model.pth")
         torch.save(self.decoder.state_dict(), "tr_decoder_model.pth")
 
+    def load(self, encoder_path, decoder_path):
+        self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
+        self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
 
-    # def translate(self, src_seq):
-    #
-    #     return output
+        self.encoder.load_state_dict(torch.load(encoder_path, map_location=lambda storage, loc: storage))
+        self.decoder.load_state_dict(torch.load(decoder_path, map_location=lambda storage, loc: storage))
+
+        self.encoder.to(DEVICE)
+        self.decoder.to(DEVICE)
+
+        self.encoder.eval()
+        self.decoder.eval()
+
+
+    def translate(self, src_str):
+        """
+        Args:
+          encoder (Encoder): Trained encoder.
+          decoder (Decoder): Trained decoder.
+          src_seq of shape (src_seq_length): LongTensor of word indices of the source sentence.
+
+        Returns:
+          out_seq of shape (out_seq_length, 1): LongTensor of word indices of the output sentence.
+        """
+
+        src_seq = convert_src_str_to_index_seq(
+            src_str=src_str,
+            src_VecModel=self.src_vm)
+        tgt_sos_token_index = self.tgt_vm.vocab.get(SOS_token).index
+
+        src_seq_batch = src_seq.unsqueeze(1)
+        src_mask = torch.tensor([[0] * len(src_seq)], dtype=torch.bool)
+
+        encoder_output = self.encoder(src_seq_batch, src_mask)
+
+        tgt_seq = torch.tensor([[tgt_sos_token_index]])
+        for i in range(MAX_LENGTH - 1):
+            decoder_output = self.decoder(tgt_seq, encoder_output, src_mask=src_mask)
+
+            decoded_words = decoder_output.argmax(dim=2)
+            next_word = decoded_words[-1].unsqueeze(1)
+            tgt_seq = torch.cat([tgt_seq, next_word], dim=0)
+
+        return tgt_seq
 
 
 
