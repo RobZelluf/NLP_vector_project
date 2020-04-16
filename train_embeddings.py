@@ -72,10 +72,7 @@ def train(language, dim=100, loops=1, epochs=10, chunks=10, continue_training=Tr
         for i, chunk in enumerate(chunk_list):
             print("Loop", loop, "/", loops, "- Chunk, ", i + 1, "/", chunks)
             start = chunk * chunk_size
-            if chunk == chunks - 1:
-                end = num_lines - 1
-            else:
-                end = (chunk + 1) * chunk_size - 1
+            end = (chunk + 1) * chunk_size - 1
 
             train_chunk(model, language, epochs, start, end)
             model.save(model_path)
