@@ -118,6 +118,10 @@ if __name__ == "__main__":
     parser.add_argument("--language", type=str)
     args = parser.parse_args()
 
+    if not args.language:
+        print("No language specified!")
+        exit()
+
     t = time()
     split(args.language)
     print('Splitting up everything took {} mins'.format(round((time() - t) / 60, 2)))
