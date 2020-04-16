@@ -213,8 +213,8 @@ class TransformerModel():
         self.hidden_size = hidden_size
 
     def train(self, filesrc, filetgt, batch_size=64, iters=2):
-        self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=16, n_hidden=1024)
-        self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=16, n_hidden=1024)
+        self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
+        self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
 
         self.encoder.to(DEVICE)
         self.decoder.to(DEVICE)
@@ -271,9 +271,9 @@ class TransformerModel():
         torch.save(self.decoder.state_dict(), "tr_decoder_model.pth")
 
 
-    def translate(self, src_seq):
-
-        return output
+    # def translate(self, src_seq):
+    #
+    #     return output
 
 
 

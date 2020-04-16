@@ -7,9 +7,10 @@ from gensim.models import KeyedVectors
 from TransformerModel.transformer_dataloader import tr_data_loader
 from TransformerModel.const_vars import *
 from TransformerModel.wvectors_tool import getVectorModel
+from TransformerModel.transformer_model import TransformerModel
 
 def extendPretrainedModel(model):
-    length = 50
+    length = EMBEDDING_VECTOR_SIZE
     model.add(SOS_token, np.random.normal(0, 0.01, length))
     model.add(EOS_token, np.random.normal(0, 0.01, length))
     model.add(UNK_token, np.random.normal(0, 0.01, length))
@@ -40,22 +41,16 @@ if __name__=="__main__":
     # vw_tgt_model = getVectorModel(True, kind='test')
     # print("tgt vw")
 
-    trainloader = tr_data_loader(
+    translation_model = TransformerModel(
         src_vectorModel=vw_src_model,
         tgt_vectorModel=vw_tgt_model,
-        filesrc=path_src_train_file,
-        filetgt=path_src_train_file,
-        batch_size=3,
-        sos_token="<SOS>",
-        eos_token="<EOS>",
-        unk_token="<UNK>"
-    )
+        hidden_size=1024)
 
-    i = 0
-    for t in trainloader:
-        print(t)
-        print("=================================")
-        if i>2:
-            break
+    print("+ start TrNN training")
+    translation_model.train(
+        path_src_train_file,
+        path_tgt_train_file,
+        batch_size=4,
+        iters=2)
 
     print("done!")
