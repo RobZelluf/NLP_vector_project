@@ -76,3 +76,21 @@ def load_subtitles(lang="nl", size=-1, start=None, end=None):
                 subs.append(sentence)
 
             return subs
+
+
+def get_num_lines(lang):
+    lang_full, lang_short = language_map(lang)
+
+    filename = "OpenSubtitles.en"
+    if lang_short is not "en":
+        filename += "-" + lang_short + "." + lang_short
+
+    file = "subtitle_data/" + lang_full + "/" + filename
+    with open(file) as f:
+        line = f.readline()
+        lines = 0
+        while line:
+            line = f.readline()
+            lines += 1
+
+        return lines
