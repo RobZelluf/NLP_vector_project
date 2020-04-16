@@ -4,6 +4,7 @@ import os
 import sys
 from utilities.utils import language_map
 
+
 class Embedding:
     def __init__(self, lang, type="w2v", dim=100, max_vocab=50000):
         self.vector_dic = dict()
@@ -34,6 +35,9 @@ class Embedding:
         test_vec = next(iter(self.vector_dic.values()))
         if test_vec.size != dim:
             print("Vector size different than desired dim = ", dim, file=sys.stderr)
+            
+        if "SOS" not in self.vector_dic:
+            self.add_special_words()
 
     def save_pickle(self):
         if self.vector_dic:
@@ -53,13 +57,21 @@ class Embedding:
                     self.save_pickle()
                     return vec
 
-        return None
+        return self.vector_dic["UNK"]
 
-    def __getitem__(self, word):
-        if word in self.vector_dic:
-            return self.vector_dic[word]
-        else:
-            return self.find_oov_word(word)
+    def __getitem__(self, words):
+        if type(words) == str:
+            words = [words]
+
+        embeddings = []
+
+        for word in words:
+            if word in self.vector_dic:
+                embeddings.append(self.vector_dic[word])
+            else:
+                embeddings.append(self.find_oov_word(word))
+
+        return np.array(embeddings)
 
     def get_glove_embeddings(self):
         self.pickle_filename = "glove_embedding_d" + str(self.dim) + '.p'
@@ -90,6 +102,7 @@ class Embedding:
 
         else:
             self.vector_dic = read_vector_file(self.filename, self.lang_full, self.max_vocab)
+            self.add_special_words()
             self.save_pickle()
 
     def get_closest_word(self, query_vector):
@@ -106,6 +119,12 @@ class Embedding:
 
         return closest_word
 
+    def add_special_words(self):
+        np.random.seed(92)
+        self.vector_dic["<SOS>"] = np.random.normal(0, 0.01, self.dim)
+        self.vector_dic["<EOS>"] = np.random.normal(0, 0.01, self.dim)
+        self.vector_dic["<UNK>"] = np.random.normal(0, 0.01, self.dim)
+
 
 def read_vector_file(filename, lang_full, max_vocab):
     vector_dic = {}
@@ -113,7 +132,7 @@ def read_vector_file(filename, lang_full, max_vocab):
     path = "vector_models/" + lang_full + "/" + filename
 
     if not os.path.exists(path):
-        print("Embedding file not downloaded!", file=sys.stderr)
+        print("Embedding file not downloaded! Run download_script.py first", file=sys.stderr)
         return
 
     with open(path) as f:
@@ -138,3 +157,4 @@ def read_vector_file(filename, lang_full, max_vocab):
 def load_vector_dict(path):
     with open(path, "rb") as f:
         return p.load(f)
+
