@@ -10,11 +10,9 @@ import os
 
 def train_chunk(model, language, epochs, start, end, special_tokens):
     subtitles = load_subtitles(language, start=start, end=end)
-    preprocess(subtitles)
+    preprocess(subtitles, False)
     if special_tokens:
         add_special_tokens(subtitles)
-
-    print(subtitles[:10])
 
     print("Updating vocabulary")
 
