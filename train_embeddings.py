@@ -60,12 +60,13 @@ def train(args):
     p = chunk_size / num_lines
 
     for loop in range(args.loops):
+        epochs = int(max(1, args.epochs - loop))
         chunk_list = list(range(args.chunks))
         random.shuffle(chunk_list)
         for i, chunk in enumerate(chunk_list):
             print("Loop", loop + 1, "/", args.loops, "- Chunk, ", i + 1, "/", args.chunks)
 
-            train_chunk(model, args.language, p, args.epochs, args.special_tokens)
+            train_chunk(model, args.language, p, epochs, args.special_tokens)
             model.save(model_path)
             print("Model saved as", model_name)
 
