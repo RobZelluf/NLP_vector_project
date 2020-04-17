@@ -30,7 +30,8 @@ def train(args):
 
     model_path = "trained_models/" + lang_full + "/" + model_name
 
-    print("Training on", lang_full, "- Embedding size:", args.dim, "- Loops:", args.loops, "- Chunks:", args.chunks)
+    print("Training on", lang_full, "- Embedding size:", args.dim, "- Loops:", args.loops,
+          "- Chunks:", args.chunks, "- Epochs:", args.epochs)
 
     cores = max(1, multiprocessing.cpu_count() - 2)
     model = Word2Vec(min_count=20,
