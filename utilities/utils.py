@@ -2,6 +2,7 @@ from gensim.parsing.preprocessing import preprocess_string, strip_tags, strip_mu
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from nltk.tokenize import WordPunctTokenizer
+import random
 
 
 def add_special_tokens(lines):
@@ -54,6 +55,23 @@ def language_map(lang):
     print("Warning: Language not detected, returning None")
     return None, None
 
+
+def load_random_subtitles(lang, p):
+    lang_full, lang_short = language_map(lang)
+
+    filename = "OpenSubtitles.raw." + lang_short
+    file = "subtitle_data/" + lang_full + "/" + filename
+
+    with open(file) as f:
+        subs = []
+        line = f.readline()
+        while line:
+            if random.random() < p:
+                subs.append(line)
+
+            line = f.readline()
+
+        return subs
 
 def load_subtitles(lang="nl", size=-1, start=None, end=None):
     lang_full, lang_short = language_map(lang)

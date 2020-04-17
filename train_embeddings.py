@@ -1,5 +1,6 @@
 from gensim.models import Word2Vec
-from utilities.utils import language_map, preprocess, load_subtitles, get_num_lines, add_special_tokens
+from utilities.utils import language_map, preprocess, load_subtitles,\
+    get_num_lines, add_special_tokens, load_random_subtitles
 import logging
 import argparse
 import random
@@ -8,16 +9,14 @@ import multiprocessing
 import os
 
 
-def train_chunk(model, language, epochs, start, end, special_tokens):
-    subtitles = load_subtitles(language, start=start, end=end)
+def train_chunk(model, language, p, epochs, special_tokens):
+    subtitles = load_random_subtitles(language, p)
+    print("Training on", len(subtitles), "lines")
     preprocess(subtitles, False)
     if special_tokens:
         add_special_tokens(subtitles)
 
-    print("Updating vocabulary")
-
     model.build_vocab(subtitles, progress_per=10000, update=model.wv.vocab)
-    print("Training model")
     model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
@@ -50,21 +49,22 @@ def train(args):
     model.workers = cores
 
     num_lines = get_num_lines(args.language)
+    print("Total number of lines:", num_lines)
     chunk_size = int(num_lines / args.chunks)
     if chunk_size > 5e6:
         chunk_size = 5e6
         args.chunks = int(math.ceil(num_lines / chunk_size))
         print("Chunk size too large, set to", int(chunk_size), "with", args.chunks, "chunks!")
 
+    p = chunk_size / num_lines
+
     for loop in range(args.loops):
         chunk_list = list(range(args.chunks))
         random.shuffle(chunk_list)
         for i, chunk in enumerate(chunk_list):
             print("Loop", loop + 1, "/", args.loops, "- Chunk, ", i + 1, "/", args.chunks)
-            start = chunk * chunk_size
-            end = (chunk + 1) * chunk_size - 1
 
-            train_chunk(model, args.language, args.epochs, start, end, args.special_tokens)
+            train_chunk(model, args.language, p, args.epochs, args.special_tokens)
             model.save(model_path)
             print("Model saved as", model_name)
 
