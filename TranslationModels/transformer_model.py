@@ -6,9 +6,9 @@ import torch.nn.functional as F
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 
-import TransformerModel.tr_model_utils as tr
-from TransformerModel.transformer_dataloader import tr_data_loader
-from TransformerModel.const_vars import *
+import TranslationModels.tr_model_utils as tr
+from TranslationModels.dataloader import tr_data_loader
+from TranslationModels.const_vars import *
 
 
 def subsequent_mask(sz):
@@ -312,7 +312,7 @@ class TransformerModel():
         self.decoder.eval()
 
 
-    def translate(self, src_str):
+    def translate(self, src_str, str_out = False):
         """
         Args:
           encoder (Encoder): Trained encoder.
@@ -340,7 +340,8 @@ class TransformerModel():
             decoded_words = decoder_output.argmax(dim=2)
             next_word = decoded_words[-1].unsqueeze(1)
             tgt_seq = torch.cat([tgt_seq, next_word], dim=0)
-
+        if str_out:
+          tgt_seq = [self.tgt_vm.index2word[x] for x in tgt_seq]
         return tgt_seq
 
 
