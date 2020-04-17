@@ -1,6 +1,7 @@
 from gensim.parsing.preprocessing import preprocess_string, strip_tags, strip_multiple_whitespaces, strip_punctuation
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
+from gensim.utils import tokenize
 
 
 def visualize_embeddings(model, words):
@@ -21,8 +22,14 @@ def visualize_embeddings(model, words):
 
 def preprocess(lines):
     for i, line in enumerate(lines):
-        lines[i] = preprocess_string(line, [lambda x: x.lower(), strip_tags, strip_multiple_whitespaces,
-                                            strip_punctuation])
+        lines[i] = preprocess_string(line, [lambda x: x.lower(), strip_tags, strip_multiple_whitespaces, strip_punctuation])
+
+
+def preprocess_line(line, remove_punctuation=True):
+    if remove_punctuation:
+        return preprocess_string(line, [lambda x: x.lower(), strip_tags, strip_multiple_whitespaces, strip_punctuation])
+    else:
+        return line.split()
 
 
 def language_map(lang):
