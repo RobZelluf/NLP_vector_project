@@ -52,8 +52,8 @@ def train(args):
     num_lines = get_num_lines(args.language)
     print("Total number of lines:", num_lines)
     chunk_size = int(num_lines / args.chunks)
-    if chunk_size > 5e5:
-        chunk_size = 5e5
+    if chunk_size > 5e6:
+        chunk_size = 5e6
         args.chunks = int(math.ceil(num_lines / chunk_size))
         print("Chunk size too large, set to", int(chunk_size), "with", args.chunks, "chunks!")
 
