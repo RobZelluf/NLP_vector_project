@@ -224,6 +224,9 @@ def convert_src_str_to_index_seq(src_str, src_VecModel):
     src_seq = torch.tensor(linesrc_index).long()
     return src_seq
 
+def convert_tgt_index_seq_to_str(tgt_seq, tgt_VecModel):
+    return
+
 
 class TransformerModel():
     def __init__(self, src_vectorModel, tgt_vectorModel,
