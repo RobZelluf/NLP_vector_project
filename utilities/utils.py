@@ -4,6 +4,14 @@ import matplotlib.pyplot as plt
 from nltk.tokenize import WordPunctTokenizer
 
 
+def add_special_characters(lines):
+    for i, line in enumerate(lines):
+        new_line = ["<SOS>"]
+        new_line.extend(line)
+        new_line.append("<EOS>")
+        lines[i] = new_line
+
+
 def visualize_embeddings(model, words):
     X = model[model.wv.vocab]
 
@@ -97,3 +105,9 @@ def get_num_lines(lang):
             lines += 1
 
         return lines
+
+
+lines = load_subtitles("dutch", start=0, end=10)
+preprocess(lines)
+add_special_characters(lines)
+print(lines)
