@@ -66,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("--language", type=str, help="Language to train", default="en")
     parser.add_argument("--loops", type=int, help="Number of full loops over the corpus", default=1)
     parser.add_argument("--chunks", type=int, help="Number of chunks to split corpus in", default=10)
-    parser.add_argument("--epochs", type=int, help="Number of epochs per chunk", default=10)
+    parser.add_argument("--epochs", type=int, help="Number of epochs per chunk", default=5)
     parser.add_argument("--dim", type=int, help="Embedding dimension", default=300)
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
     parser.add_argument("--continue_training", type=bool, default=True)
