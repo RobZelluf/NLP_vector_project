@@ -25,4 +25,4 @@ def save_keyed_vectors(language, dim):
         model.wv.save_word2vec_format(f, binary=True)
 
 
-save_keyed_vectors("en", 300)
+save_keyed_vectors("en", 100)
