@@ -1,7 +1,6 @@
 from gensim.parsing.preprocessing import preprocess_string, strip_tags, strip_multiple_whitespaces, strip_punctuation
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
-from gensim.utils import tokenize
 from nltk.tokenize import WordPunctTokenizer
 
 

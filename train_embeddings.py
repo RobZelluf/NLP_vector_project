@@ -70,6 +70,7 @@ if __name__ == "__main__":
     parser.add_argument("--dim", type=int, help="Embedding dimension", default=300)
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
     parser.add_argument("--continue_training", type=bool, default=True)
+    parser.add_argument("--special_tokens", action='store_true')
     args = parser.parse_args()
 
     if args.log:
@@ -83,6 +84,11 @@ if __name__ == "__main__":
 
     if not os.path.exists("trained_models/" + lang):
         os.mkdir("trained_models/" + lang)
+
+    if args.special_tokens:
+        print("Adding tokens <SOS> and <EOS>")
+
+    exit()
 
     train(args.language, args.dim, args.loops, args.epochs, args.chunks, args.continue_training)
 
