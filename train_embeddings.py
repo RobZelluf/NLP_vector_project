@@ -35,7 +35,7 @@ def train(args):
     cores = max(1, multiprocessing.cpu_count() - 2)
     model = Word2Vec(min_count=20,
                      window=5,
-                     size=300,
+                     size=args.dim,
                      alpha=0.03,
                      min_alpha=0.0007,
                      workers=cores,
