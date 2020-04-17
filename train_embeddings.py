@@ -33,26 +33,27 @@ def train(args):
           "- Chunks:", args.chunks, "- Epochs:", args.epochs)
 
     cores = max(1, multiprocessing.cpu_count() - 2)
-    model = Word2Vec(min_count=20,
-                     window=5,
-                     size=args.dim,
-                     alpha=0.03,
-                     min_alpha=0.0007,
-                     workers=cores,
-                     sample=6e-5,
-                     negative=20)
 
     if os.path.exists(model_path) and args.continue_training:
         print("Continuing training existing model")
         model = Word2Vec.load(model_path)
+    else:
+        model = Word2Vec(min_count=20,
+                         window=5,
+                         size=args.dim,
+                         alpha=0.03,
+                         min_alpha=0.0007,
+                         workers=cores,
+                         sample=6e-5,
+                         negative=20)
 
     model.workers = cores
 
     num_lines = get_num_lines(args.language)
     print("Total number of lines:", num_lines)
     chunk_size = int(num_lines / args.chunks)
-    if chunk_size > 5e7:
-        chunk_size = 5e7
+    if chunk_size > 5e5:
+        chunk_size = 5e5
         args.chunks = int(math.ceil(num_lines / chunk_size))
         print("Chunk size too large, set to", int(chunk_size), "with", args.chunks, "chunks!")
 
