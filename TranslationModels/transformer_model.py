@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+import time
 
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
@@ -219,15 +220,20 @@ class TransformerModel():
         self.encoder_save_path = encoder_save_path
         self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
+        try:
+          self.load(self.encoder_save_path, self.decoder_save_path)
+          print('++ Model loaded!')
+        except:
+          pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu"):
         if self.encoder is None:
           self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
         if self.decoder is None:
           self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
 
-        self.encoder.to(DEVICE)
-        self.decoder.to(DEVICE)
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
 
@@ -250,14 +256,15 @@ class TransformerModel():
         self.decoder.train()
 
         tgt_padding_value = self.tgt_vm.vocab.get(EOS_token).index
+        start = time.time()
 
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):
                 src_seqs, src_mask, tgt_seqs = batch
 
-                src_seqs = src_seqs.to(DEVICE)
-                src_mask = src_mask.to(DEVICE)
-                tgt_seqs = tgt_seqs.to(DEVICE)
+                src_seqs = src_seqs.to(device)
+                src_mask = src_mask.to(device)
+                tgt_seqs = tgt_seqs.to(device)
 
                 src_mask = src_mask.t()
                 tgt_input = tgt_seqs[:-1]
@@ -276,6 +283,9 @@ class TransformerModel():
                 optimizer.step()
                 optimizer.zero_grad()
 
+            end = time.time()
+            dur = end - start
+            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
             print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
