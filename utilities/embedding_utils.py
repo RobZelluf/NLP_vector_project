@@ -1,4 +1,4 @@
-from utilities.utils import language_map
+from utils import language_map
 from gensim.models import Word2Vec, FastText
 import os
 
