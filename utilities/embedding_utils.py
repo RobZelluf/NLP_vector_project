@@ -15,7 +15,7 @@ def get_word_vectors(language, dim=300):
 
 
 def save_keyed_vectors(model_path, model_name):
-    save_path = "self_trained_models/"
+    save_path = "data/vector_models/"
     filename = model_name + ".model"
 
     model = Word2Vec.load(model_path + filename)
