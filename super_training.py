@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("--continue_training", type=bool, default=True)
     parser.add_argument("--special_tokens", type=bool, default=True)
     parser.add_argument("--fasttext", action='store_true')
-    parser.add_argument("--cores", type=int, default=11)
+    parser.add_argument("--cores", type=int, default=6)
     parser.add_argument("--superloops", type=int, default=100)
     args = parser.parse_args()
 
