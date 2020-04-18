@@ -1,25 +1,42 @@
 from utilities.utils import visualize_embeddings, language_map
-from gensim.models import Word2Vec
+from gensim.models import Word2Vec, KeyedVectors
+from gensim.models.keyedvectors import FastTextKeyedVectors
+from gensim.models import FastText
+import os
 
 
-def visualize_language(lang):
-    lang_full, lang_short = language_map(lang)
+def visualize_language(model_name):
+    path = "data/vector_models/" + model_name
 
-    model = Word2Vec.load("trained_models/" + lang_full + "/" + lang_short + "_d100_st.model")
-    model.init_sims(replace=True)
+    if "fasttext" in model_name:
+        wv = FastTextKeyedVectors.load(path)
+    else:
+        wv = KeyedVectors.load_word2vec_format(path, binary=True)
 
     words = [""]
-    if lang_short == "en":
+    if "en" in model_name:
         words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
                  "one", "two", "three", "four", "five", "six",
                  "amsterdam", "london", "berlin", "rotterdam", "amsterdam",
                  "netherlands", "germany", "england"]
-    if lang_short == "nl":
+
+    if "nl" in model_name:
         words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
                  "een", "twee", "drie", "vier", "vijf", "zes", ".", "<SOS>", "<EOS>",
                  "amsterdam", "london", "berlin", "rotterdam", "manchester"]
 
-    visualize_embeddings(model, words)
+    if "fasttext" in model_name:
+        words = ["skjafk", "fjhfkja", "fhsdhlf"]
+
+    visualize_embeddings(wv, words)
 
 
-visualize_language("dutch")
+dirs = os.listdir("data/vector_models")
+for i, model_name in enumerate(dirs):
+    print(i, model_name)
+
+ind = int(input("Model:"))
+model_name = dirs[ind]
+print(model_name)
+
+visualize_language(model_name)

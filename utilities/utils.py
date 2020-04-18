@@ -12,13 +12,13 @@ def add_special_tokens(lines):
         lines[i] = line
 
 
-def visualize_embeddings(model, words):
-    X = model[model.wv.vocab]
+def visualize_embeddings(wv, words):
+    X = wv[wv.vocab]
 
     pca = PCA(n_components=2)
     pca.fit(X)
 
-    X = model[words]
+    X = wv[words]
     result = pca.transform(X)
 
     plt.scatter(result[:, 0], result[:, 1])
