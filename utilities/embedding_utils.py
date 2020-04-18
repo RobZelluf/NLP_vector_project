@@ -4,7 +4,7 @@ from gensim.models.keyedvectors import FastTextKeyedVectors
 import os
 
 
-def get_word_vectors(language, dim=300):
+def get_word_vectors(language, dim=100):
     lang_full, lang_short = language_map(language)
 
     path = "trained_models/" + lang_full + "/"
@@ -48,5 +48,3 @@ def bin_all():
                 except:
                     print("Failed to bin", model_name)
 
-
-bin_all()
