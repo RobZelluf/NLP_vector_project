@@ -25,6 +25,8 @@ def save_keyed_vectors(model_path, model_name):
         model = Word2Vec.load(model_path + filename)
 
     model.init_sims(replace=True)
+    if "ft" in model_name:
+        model.wv.save(save_path + model_name + ".bin", separately=[])
     with open(save_path + model_name + ".bin", "wb") as f:
         model.wv.save_word2vec_format(f, binary=True)
 
