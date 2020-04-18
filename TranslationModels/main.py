@@ -6,8 +6,7 @@ from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
 
 import sys
-sys.path.append('./../')
-sys.path.append('./../../')
+sys.path.append(os.path.abspath(os.path.normpath(os.path.join(__file__, "./../../"))))
 import argparse
 
 from TranslationModels.const_vars import *
@@ -124,9 +123,9 @@ if __name__=='__main__':
              path_tgt_train_file,
              batch_size=args.batch_size,
              iters=args.iters,
-             max_batches = args.max_batches
-             #device = 'cuda:0' if args.gpu else 'cpu')
-             )
+             max_batches = args.max_batches,
+             device = 'cuda:0' if args.gpu else 'cpu')
+             
 
     '''print('+ Loading model')
                 try:

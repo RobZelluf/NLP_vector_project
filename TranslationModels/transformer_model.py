@@ -285,6 +285,7 @@ class TransformerModel():
 
             end = time.time()
             dur = end - start
+            start = end
             print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
             print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
 
