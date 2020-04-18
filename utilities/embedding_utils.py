@@ -1,5 +1,5 @@
-from utilities.utils import language_map
-from gensim.models import Word2Vec
+from utils import language_map
+from gensim.models import Word2Vec, FastText
 import os
 
 
@@ -18,7 +18,12 @@ def save_keyed_vectors(model_path, model_name):
     save_path = "data/vector_models/"
     filename = model_name + ".model"
 
-    model = Word2Vec.load(model_path + filename)
+    if "ft" in model_name:
+        print("Binning fasttext model!")
+        model = FastText.load(model_path + filename)
+    else:
+        model = Word2Vec.load(model_path + filename)
+
     model.init_sims(replace=True)
     with open(save_path + model_name + ".bin", "wb") as f:
         model.wv.save_word2vec_format(f, binary=True)
@@ -34,7 +39,10 @@ def bin_all():
                 model_name = str(ext[0])
 
                 print("Binning", model_name)
-                save_keyed_vectors(model_path, model_name)
+                try:
+                    save_keyed_vectors(model_path, model_name)
+                except:
+                    print("Failed to bin", model_name)
 
 
 bin_all()

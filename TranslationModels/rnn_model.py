@@ -14,7 +14,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 import random
 import numpy as np
-
+import time
 
 class Encoder(nn.Module):
 	def __init__(self, embedding_vectors, hidden_size):
@@ -89,6 +89,11 @@ class RNNModel():
 		self.encoder_save_path = encoder_save_path
 		self.decoder_save_path = decoder_save_path
 		self.hidden_size = hidden_size
+		try:
+			self.load(self.encoder_save_path, self.decoder_save_path)
+			print('++ Model loaded!')
+		except:
+			pass
 
 	def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio = 0.5, max_batches = None, device = "cpu"):
 
@@ -126,6 +131,7 @@ class RNNModel():
 		self.decoder.train()
 
 		
+		start = time.time()
 
 		for epoch in range(iters):
 			for i, batch in enumerate(trainloader):
@@ -148,7 +154,9 @@ class RNNModel():
 				optimizerEnc.step()
 				optimizerDec.step()
 
-			print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
+			end = time.time()
+			dur = end - start
+			print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
 		torch.save(self.encoder.state_dict(), self.encoder_save_path)
 		torch.save(self.decoder.state_dict(), self.decoder_save_path)
