@@ -84,7 +84,7 @@ def train_chunk(model, language, p, epochs, special_tokens):
     model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
-def main(args):
+def train_model(args):
     lang_full, lang_short = language_map(args.language)
     model_name, model_path = get_model_path(args)
 
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     if args.special_tokens:
         print("Adding tokens <SOS> and <EOS>")
 
-    main(args)
+    train_model(args)
 
 
 
