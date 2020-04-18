@@ -285,6 +285,7 @@ class TransformerModel():
 
             end = time.time()
             dur = end - start
+            start = end
             print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
             print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
 
@@ -305,7 +306,7 @@ class TransformerModel():
         self.decoder.eval()
 
 
-    def translate(self, src_str, str_out = False):
+    def translate(self, src_str, str_out = False, device = 'cpu'):
         """
         Args:
           encoder (Encoder): Trained encoder.
@@ -315,6 +316,8 @@ class TransformerModel():
         Returns:
           out_seq of shape (out_seq_length, 1): LongTensor of word indices of the output sentence.
         """
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         src_seq = tr.convert_src_str_to_index_seq(
             src_str=src_str,
