@@ -23,14 +23,24 @@ def train_chunk(model, language, p, epochs, special_tokens):
 def train(args):
     lang_full, lang_short = language_map(args.language)
 
-    model_name = lang_short + "_d" + str(args.dim) + ".model"
+    model_name = lang_short + "_d" + str(args.dim)
     if args.special_tokens:
-        model_name = lang_short + "_d" + str(args.dim) + "_st.model"
+        model_name += "_st"
+
+    if args.skip_gram:
+        model_name += "_sg"
+
+    model_name += ".model"
 
     model_path = "trained_models/" + lang_full + "/" + model_name
 
     print("Training on", lang_full, "- Embedding size:", args.dim, "- Loops:", args.loops,
           "- Chunks:", args.chunks, "- Epochs:", args.epochs)
+
+    if args.skip_gram:
+        print("Using skip gram")
+    else:
+        print("Using CBOW")
 
     cores = max(1, multiprocessing.cpu_count() - 2)
 
@@ -45,7 +55,8 @@ def train(args):
                          min_alpha=0.0007,
                          workers=cores,
                          sample=6e-5,
-                         negative=20)
+                         negative=20,
+                         sg=args.skip_gram)
 
     model.workers = cores
 
@@ -81,6 +92,7 @@ if __name__ == "__main__":
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
     parser.add_argument("--continue_training", type=bool, default=True)
     parser.add_argument("--special_tokens", action='store_true')
+    parser.add_argument("--skip_gram", action='store_true')
     args = parser.parse_args()
 
     if args.log:
