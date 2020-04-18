@@ -306,7 +306,7 @@ class TransformerModel():
         self.decoder.eval()
 
 
-    def translate(self, src_str, str_out = False):
+    def translate(self, src_str, str_out = False, device = 'cpu'):
         """
         Args:
           encoder (Encoder): Trained encoder.
@@ -316,6 +316,8 @@ class TransformerModel():
         Returns:
           out_seq of shape (out_seq_length, 1): LongTensor of word indices of the output sentence.
         """
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         src_seq = tr.convert_src_str_to_index_seq(
             src_str=src_str,
