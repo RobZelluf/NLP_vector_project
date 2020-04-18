@@ -1,16 +1,17 @@
 import os
+import os.path
 import numpy as np
 import gensim
 from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
 
 import sys
-sys.path.append("./../")
+sys.path.append('./../')
+import argparse
 
 from TranslationModels.rnn_model import RNNModel
 from TranslationModels.dataloader import tr_data_loader
 from TranslationModels.const_vars import *
-from TranslationModels.wvectors_tool import getVectorModel
 from TranslationModels.transformer_model import TransformerModel
 
 
@@ -30,75 +31,106 @@ def extendPretrainedModel(model):
         model.add(UNK_token, np.random.normal(0, 0.01, length))
     return model
 
-if __name__=="__main__":
+if __name__=='__main__':
 
-    isTransformer = True
-    train = False
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--train', '-t', action = 'store_true', help='Should training be performed.')
+    parser.add_argument('--rnn', action = 'store_true', help='Should the loaded translation model be an RNN.')
 
-    path_src_train_file = "./../data/train_data/OpenSubtitles.en-nl.en"
-    path_tgt_train_file = "./../data/train_data/OpenSubtitles.en-nl.nl"
+    #parser.add_argument('--extend', '-e', action = 'store_true', help='Should the word vector space be extended with SOS, EOS and UNK tokens.')
+    parser.add_argument('--src', choices = ['en', 'nl', 'ru'], help='Source language for translation.', default = 'en')
+    parser.add_argument('--tgt', choices = ['en', 'nl', 'ru'], help='Target language for translation.', default = 'nl')
 
-    path_nl_vw_model_bin = "./../data/vector_models/nl_d100.bin"
-    path_en_vw_model_bin = "./../data/vector_models/en_d100.bin"
+    parser.add_argument('--source_corpus', type = str, help='Paired corpus in the source languaga for training, filename in the data/train_data folder.', default = 'OpenSubtitles.en-nl.en')
+    parser.add_argument('--target_corpus', type = str, help='Paired corpus in the target languaga for training, filename in the data/train_data folder.', default = 'OpenSubtitles.en-nl.nl')
 
-    print("+ preparing src vector model")
-    vw_src_model = KeyedVectors.load_word2vec_format(path_en_vw_model_bin, binary=True)
-    print("++ src vector model read")
+    parser.add_argument('--source_vectors', type = str, help='Word vectors for the source languaga, filename in the data/vector_models folder.', default = 'en_d100.bin')
+    parser.add_argument('--target_vectors', type = str, help='Paired corpus in the target languaga, filename in the data/vector_models folder.', default = 'nl_d100.bin')
+
+
+    parser.add_argument('--hidden_size', type = int, help='', default = 1024)
+    parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = 100)
+    parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
+    parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
+    parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
+
+    parser.add_argument('--target', type = str, help='Sentence to translate.', default = 'I want a dog')
+
+    args = parser.parse_args()
+
+    if args.src == args.tgt:
+        print('Source and target language identical!')
+        sys.exit()
+
+    path_src_train_file = './../data/train_data/' + args.source_corpus
+    path_tgt_train_file = './../data/train_data/' + args.target_corpus
+
+    path_src_vw_model_bin = './../data/vector_models/' + args.source_vectors
+    path_tgt_vw_model_bin = './../data/vector_models/' + args.target_vectors
+
+    if not all([os.path.isfile(fname) for fname in [path_src_train_file, path_tgt_train_file, path_src_vw_model_bin, path_tgt_vw_model_bin]]):
+        print('Some of the files given do not exist, perhaps check defaults!')
+        sys.exit()
+
+    print('+ preparing src vector model')
+    vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
+    print('++ src vector model read')
     vw_src_model = extendPretrainedModel(vw_src_model)
-    print("++ src vector model extended")
+    print('++ src vector model extended')
 
-    print("+ preparing tgt vector model")
-    vw_tgt_model = KeyedVectors.load_word2vec_format(path_nl_vw_model_bin, binary=True)
-    print("++ tgt vector model read")
+    print('+ preparing tgt vector model')
+    vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
+    print('++ tgt vector model read')
     vw_tgt_model = extendPretrainedModel(vw_tgt_model)
-    print("++ tgt vector model extended")
+    print('++ tgt vector model extended')
 
-    if not isTransformer:
+    if args.rnn:
         translation_model = RNNModel(
              src_vectorModel=vw_src_model,
              tgt_vectorModel=vw_tgt_model,
-             encoder_save_path="./../data/translation_models/rnn_encoder_model.pth",
-             decoder_save_path="./../data/translation_models/rnn_decoder_model.pth",
-             hidden_size=1024)
+             encoder_save_path='./../data/translation_models/rnn_encoder_model.pth',
+             decoder_save_path='./../data/translation_models/rnn_decoder_model.pth',
+             hidden_size=args.hidden_size)
     else:
         translation_model = TransformerModel(
              src_vectorModel=vw_src_model,
              tgt_vectorModel=vw_tgt_model,
-             encoder_save_path="./../data/translation_models/tr_encoder_model.pth",
-             decoder_save_path="./../data/translation_models/tr_decoder_model.pth",
-             hidden_size=1024)
+             encoder_save_path='./../data/translation_models/tr_encoder_model.pth',
+             decoder_save_path='./../data/translation_models/tr_decoder_model.pth',
+             hidden_size=args.hidden_size)
 
-    if train:
-        print("+ start TrNN training")
+    if args.train:
+        print('+ start TrNN training')
         translation_model.train(
              path_src_train_file,
              path_tgt_train_file,
-             batch_size=4,
-             iters=2,
-             #device = "cuda:0")
+             batch_size=args.batch_size,
+             iters=args.iters,
+             max_batches = args.max_batches
+             #device = 'cuda:0' if args.gpu else 'cpu')
              )
 
-    print("+ Loading model")
+    print('+ Loading model')
     try:
-        if not isTransformer:
+        if args.rnn:
             translation_model.load(
-               encoder_path="./../data/translation_models/rnn_encoder_model.pth",
-               decoder_path="./../data/translation_models/rnn_decoder_model.pth")
+               encoder_path='./../data/translation_models/rnn_encoder_model.pth',
+               decoder_path='./../data/translation_models/rnn_decoder_model.pth')
         else:
             translation_model.load(
-               encoder_path="./../data/translation_models/tr_encoder_model.pth",
-               decoder_path="./../data/translation_models/tr_decoder_model.pth")
+               encoder_path='./../data/translation_models/tr_encoder_model.pth',
+               decoder_path='./../data/translation_models/tr_decoder_model.pth')
     except Exception as e:
         print(e)
     else:
-        print("++ loaded")
+        print('++ loaded')
 
     print()
-    tr_input = "I want a dog."
+    tr_input = args.target # 'I want a dog.'
     tr_res = translation_model.translate(tr_input, True)
-    print("+ Translation:")
-    print("++ Input:", tr_input)
-    print("++ Output:", tr_res)
+    print('+ Translation:')
+    print('++ Input:', tr_input)
+    print('++ Output:', tr_res)
 
     print()
-    print("done!")
+    print('done!')
