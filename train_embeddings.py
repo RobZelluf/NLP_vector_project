@@ -65,7 +65,11 @@ def get_model(args, model_path):
                              sample=6e-5,
                              negative=20,
                              sg=args.skip_gram)
-    model.workers = cores
+    if args.cores == -1:
+        model.workers = cores
+    else:
+        model.workers = args.cores
+
     return model
 
 
@@ -77,10 +81,10 @@ def train_chunk(model, language, p, epochs, special_tokens):
         add_special_tokens(subtitles)
 
     model.build_vocab(subtitles, progress_per=10000, update=model.wv.vocab)
-    model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
+    model.main(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
-def train(args):
+def main(args):
     lang_full, lang_short = language_map(args.language)
     model_name, model_path = get_model_path(args)
 
@@ -109,7 +113,7 @@ def train(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--language", type=str, help="Language to train", default="en")
+    parser.add_argument("--languagepe=int", type=str, help="Language to train", default="en")
     parser.add_argument("--loops", type=int, help="Number of full loops over the corpus", default=10)
     parser.add_argument("--chunks", type=int, help="Number of chunks to split corpus in", default=10)
     parser.add_argument("--epochs", type=int, help="Number of epochs per chunk", default=5)
@@ -119,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("--special_tokens", action='store_true')
     parser.add_argument("--skip_gram", action='store_true')
     parser.add_argument("--fasttext", action='store_true')
+    parser.add_argument("--cores", type=int, default=-1)
     args = parser.parse_args()
 
     if args.log:
@@ -141,7 +146,7 @@ if __name__ == "__main__":
     if args.special_tokens:
         print("Adding tokens <SOS> and <EOS>")
 
-    train(args)
+    main(args)
 
 
 
