@@ -8,7 +8,7 @@ import os
 def visualize_language(model_name):
     path = "data/vector_models/" + model_name
 
-    if "fasttext" in model_name:
+    if "ft" in model_name:
         wv = FastTextKeyedVectors.load(path)
     else:
         wv = KeyedVectors.load_word2vec_format(path, binary=True)
@@ -25,8 +25,8 @@ def visualize_language(model_name):
                  "een", "twee", "drie", "vier", "vijf", "zes", ".", "<SOS>", "<EOS>",
                  "amsterdam", "london", "berlin", "rotterdam", "manchester"]
 
-    if "fasttext" in model_name:
-        words = ["skjafk", "fjhfkja", "fhsdhlf"]
+    if "ft" in model_name:
+        words.extend(["skjafk", "fjhfkja", "fhsdhlf"])
 
     visualize_embeddings(wv, words)
 
