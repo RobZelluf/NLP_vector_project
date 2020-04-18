@@ -81,7 +81,7 @@ def train_chunk(model, language, p, epochs, special_tokens):
         add_special_tokens(subtitles)
 
     model.build_vocab(subtitles, progress_per=10000, update=model.wv.vocab)
-    model.main(subtitles, total_examples=len(subtitles), epochs=epochs)
+    model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
 def main(args):
