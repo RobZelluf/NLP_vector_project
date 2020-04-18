@@ -10,9 +10,9 @@ sys.path.append('./../')
 sys.path.append('./../../')
 import argparse
 
+from TranslationModels.const_vars import *
 from TranslationModels.rnn_model import RNNModel
 from TranslationModels.dataloader import tr_data_loader
-from TranslationModels.const_vars import *
 from TranslationModels.transformer_model import TransformerModel
 
 
