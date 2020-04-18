@@ -240,9 +240,11 @@ class TransformerModel():
         self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2):
-        self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
-        self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu"):
+        if self.encode is None:
+          self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
+        if self.decoder is None:
+          self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
 
         self.encoder.to(DEVICE)
         self.decoder.to(DEVICE)
@@ -260,7 +262,8 @@ class TransformerModel():
             batch_size=batch_size,
             sos_token=SOS_token,
             eos_token=EOS_token,
-            unk_token=UNK_token
+            unk_token=UNK_token,
+            max_batches=max_batches
         )
 
         self.encoder.train()

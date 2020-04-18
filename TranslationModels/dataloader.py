@@ -16,7 +16,7 @@ from gensim.models.callbacks import CallbackAny2Vec
 class tr_data_loader(object):
 	def __init__(self, src_vectorModel, tgt_vectorModel,
 				 filesrc, filetgt, batch_size,
-				 sos_token, eos_token, unk_token, isTransformer = True):
+				 sos_token, eos_token, unk_token, isTransformer = True, max_batches = None):
 		self.filesrc = filesrc
 		self.filetgt = filetgt
 		self.batch_size = batch_size
@@ -36,7 +36,7 @@ class tr_data_loader(object):
 		self.tgt_unk_token_index = self.tgt_vm.vocab.get(self.unk_token).index
 
 		self.isTransformer = isTransformer
-
+		self.max_batches = max_batches
 
 	def collateTransformer(self, list_of_samples):
 		"""Merges a list of samples to form a mini-batch.
@@ -115,5 +115,5 @@ class tr_data_loader(object):
 				if i % self.batch_size == 0:
 					yield self.collateTransformer(lst) if self.isTransformer else self.collateRNN(lst)
 					lst = []
-					if i > 100:
+					if self.max_batches is not None and i > self.max_batches:
 						break

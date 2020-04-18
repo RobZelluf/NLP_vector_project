@@ -111,13 +111,15 @@ class RNNModel():
 		self.decoder_save_path = decoder_save_path
 		self.hidden_size = hidden_size
 
-	def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio = 0.5, device = "cpu"):
+	def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio = 0.5, max_batches = None, device = "cpu"):
 
 		src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
 		tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
 
-		self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
-		self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = tgt_padding_value)
+		if self.decoder is None:
+			self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
+		if self.decoder is None:
+			self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = tgt_padding_value)
 
 		self.encoder.to(device)
 		self.decoder.to(device)
@@ -137,6 +139,7 @@ class RNNModel():
 			sos_token=SOS_token,
 			eos_token=EOS_token,
 			unk_token=UNK_token,
+			max_batches=max_batches,
 			isTransformer=False
 		)
 
@@ -156,7 +159,6 @@ class RNNModel():
 				
 				output, hidden = self.encoder(train_inputs, train_lengths, hidden, src_padding_value)
 				output, hidden = self.decoder(hidden, pad_tgt_seqs = train_targets, teacher_forcing = random.random() < teacher_forcing_ratio)
-				
 
 				output = output.reshape(output.shape[0] * output.shape[1], output.shape[2])
 				train_targets = train_targets.reshape(-1)
