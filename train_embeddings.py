@@ -113,7 +113,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--languagepe=int", type=str, help="Language to train", default="en")
+    parser.add_argument("--language", type=str, help="Language to train", default="en")
     parser.add_argument("--loops", type=int, help="Number of full loops over the corpus", default=10)
     parser.add_argument("--chunks", type=int, help="Number of chunks to split corpus in", default=10)
     parser.add_argument("--epochs", type=int, help="Number of epochs per chunk", default=5)
