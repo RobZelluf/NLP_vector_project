@@ -13,15 +13,21 @@ from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 from gensim.models.callbacks import CallbackAny2Vec
 
+from utilities.utils import preprocess_line
+
 class tr_data_loader(object):
 	def __init__(self, src_vectorModel, tgt_vectorModel,
 				 filesrc, filetgt, batch_size,
-				 sos_token, eos_token, unk_token, isTransformer = True, max_batches = None):
+				 sos_token, eos_token, unk_token,
+				 remove_punctuation=False,
+				 isTransformer=True, max_batches=None):
 		self.filesrc = filesrc
 		self.filetgt = filetgt
 		self.batch_size = batch_size
 		self.src_vm = src_vectorModel
 		self.tgt_vm = tgt_vectorModel
+
+		self.remove_punctuation = remove_punctuation
 
 		self.sos_token = sos_token
 		self.eos_token = eos_token
@@ -85,8 +91,11 @@ class tr_data_loader(object):
 			lst = []
 			i = 0
 			for linesrc, linetgt in zip(file_src, file_tgt):
-				linesrc = preprocess_string(linesrc, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
-				linetgt = preprocess_string(linetgt, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
+
+				linesrc = preprocess_line(linesrc, remove_punctuation=self.remove_punctuation)
+				linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
+				# linesrc = preprocess_string(linesrc, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
+				# linetgt = preprocess_string(linetgt, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
 
 				linesrc = [*linesrc, self.eos_token]
 				linetgt = [*linetgt, self.eos_token]
