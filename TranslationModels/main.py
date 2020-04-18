@@ -7,11 +7,12 @@ from gensim.models import KeyedVectors
 
 import sys
 sys.path.append('./../')
+sys.path.append('./../../')
 import argparse
 
+from TranslationModels.const_vars import *
 from TranslationModels.rnn_model import RNNModel
 from TranslationModels.dataloader import tr_data_loader
-from TranslationModels.const_vars import *
 from TranslationModels.transformer_model import TransformerModel
 
 
@@ -50,7 +51,7 @@ if __name__=='__main__':
 
 
     parser.add_argument('--hidden_size', type = int, help='', default = 1024)
-    parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = 100)
+    parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
