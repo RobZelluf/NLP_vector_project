@@ -42,7 +42,9 @@ if __name__ == "__main__":
         print("Superloop", superloop)
 
         for lang in ["dutch", "english", "russian"]:
-            args.epochs = int(max(5 - superloop, 1))
-            args.language = lang
+            for skip_gram in [True, False]:
+                args.skip_gram = skip_gram
+                args.epochs = int(max(5 - superloop, 1))
+                args.language = lang
 
         train_model(args)
