@@ -3,19 +3,9 @@ import math
 import torch
 import torch.nn as nn
 
-def save_model(model, filename):
-    if do_save == 'yes':
-        torch.save(model.state_dict(), filename)
-        print('Model saved to %s.' % (filename))
-    else:
-        print('Model not saved.')
+from TranslationModels.const_vars import *
+from utilities.utils import preprocess_line
 
-
-def load_model(model, filename, device):
-    model.load_state_dict(torch.load(filename, map_location=lambda storage, loc: storage))
-    print('Model loaded from %s.' % filename)
-    model.to(device)
-    model.eval()
 
 
 class PositionalEncoding(nn.Module):
@@ -74,4 +64,25 @@ class NoamOptimizer:
 
 
 
+def convert_src_str_to_index_seq(src_str, src_VecModel, remove_punctuation=False):
+    src_unk_token_index = src_VecModel.vocab.get(UNK_token).index
 
+    linesrc = preprocess_line(src_str, remove_punctuation=remove_punctuation)
+    # linesrc = preprocess_string(src_str, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
+    linesrc = [*linesrc, EOS_token]
+
+    linesrc_index = []
+    for w in linesrc:
+        vw_index = src_VecModel.vocab.get(w)
+        if vw_index is None:
+            linesrc_index.append(src_unk_token_index)
+        else:
+            linesrc_index.append(vw_index.index)
+
+    src_seq = torch.tensor(linesrc_index).long()
+    return src_seq
+
+
+def convert_tgt_index_seq_to_str(tgt_seq, tgt_VecModel):
+    tgt_str_list = [tgt_VecModel.index2word[x] for x in tgt_seq]
+    return tgt_str_list

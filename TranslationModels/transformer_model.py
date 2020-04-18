@@ -207,26 +207,6 @@ class Decoder(nn.Module):
         return out
 
 
-def convert_src_str_to_index_seq(src_str, src_VecModel):
-    src_unk_token_index = src_VecModel.vocab.get(UNK_token).index
-
-    linesrc = preprocess_string(src_str, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
-    linesrc = [*linesrc, EOS_token]
-
-    linesrc_index = []
-    for w in linesrc:
-        vw_index = src_VecModel.vocab.get(w)
-        if vw_index is None:
-            linesrc_index.append(src_unk_token_index)
-        else:
-            linesrc_index.append(vw_index.index)
-
-    src_seq = torch.tensor(linesrc_index).long()
-    return src_seq
-
-def convert_tgt_index_seq_to_str(tgt_seq, tgt_VecModel):
-    return
-
 
 class TransformerModel():
     def __init__(self, src_vectorModel, tgt_vectorModel,
@@ -240,8 +220,8 @@ class TransformerModel():
         self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu"):
-        if self.encode is None:
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None):
+        if self.encoder is None:
           self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
         if self.decoder is None:
           self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
@@ -326,7 +306,7 @@ class TransformerModel():
           out_seq of shape (out_seq_length, 1): LongTensor of word indices of the output sentence.
         """
 
-        src_seq = convert_src_str_to_index_seq(
+        src_seq = tr.convert_src_str_to_index_seq(
             src_str=src_str,
             src_VecModel=self.src_vm)
         tgt_sos_token_index = self.tgt_vm.vocab.get(SOS_token).index
@@ -343,8 +323,10 @@ class TransformerModel():
             decoded_words = decoder_output.argmax(dim=2)
             next_word = decoded_words[-1].unsqueeze(1)
             tgt_seq = torch.cat([tgt_seq, next_word], dim=0)
+
         if str_out:
           tgt_seq = [self.tgt_vm.index2word[x] for x in tgt_seq]
+
         return tgt_seq
 
 

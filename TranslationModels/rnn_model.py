@@ -76,27 +76,6 @@ class Decoder(nn.Module):
 			output = output[1:, :, :]
 
 		return output, hidden
-	
-	
-	
-	
-
-def convert_src_str_to_index_seq(src_str, src_VecModel):
-	src_unk_token_index = src_VecModel.vocab.get(UNK_token).index
-
-	linesrc = preprocess_string(src_str, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
-	linesrc = [*linesrc, EOS_token]
-
-	linesrc_index = []
-	for w in linesrc:
-		vw_index = src_VecModel.vocab.get(w)
-		if vw_index is None:
-			linesrc_index.append(src_unk_token_index)
-		else:
-			linesrc_index.append(vw_index.index)
-
-	src_seq = torch.tensor(linesrc_index).long()
-	return src_seq
 
 
 class RNNModel():
@@ -195,9 +174,10 @@ class RNNModel():
 
 		hidden = self.encoder.init_hidden()
 		
-		src_seq = convert_src_str_to_index_seq(
-            src_str=src_str,
-            src_VecModel=self.src_vm).unsqueeze(1)
+		src_seq = tr.convert_src_str_to_index_seq(
+			src_str=src_str,
+			src_VecModel=self.src_vm
+		).unsqueeze(1)
 		lens = np.array([len(src_seq),])
 
 		output, hidden = self.encoder(src_seq, lens, hidden, src_padding_value)
@@ -211,7 +191,8 @@ class RNNModel():
 			pass
 
 		if str_out:
-			output = [self.tgt_vm.index2word[x] for x in output]
+			output = tr.convert_tgt_index_seq_to_str(output, self.tgt_vm)
+
 		return output
 
 
