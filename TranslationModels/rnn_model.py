@@ -153,7 +153,8 @@ class RNNModel():
                 loss.backward()
                 optimizerEnc.step()
                 optimizerDec.step()
-
+                if (i + 1) % 100 == 0:
+                    print(i + 1, 'batches done!', end='\r')
             end = time.time()
             dur = end - start
             start = end
