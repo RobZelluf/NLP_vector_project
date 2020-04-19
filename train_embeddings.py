@@ -75,7 +75,6 @@ def get_model(args, model_path):
 
 def train_chunk(model, language, p, epochs, special_tokens):
     subtitles = load_random_subtitles(language, p)
-    print("Training on", len(subtitles), "lines")
     preprocess(subtitles, False)
     if special_tokens:
         add_special_tokens(subtitles)
@@ -84,7 +83,7 @@ def train_chunk(model, language, p, epochs, special_tokens):
     model.train(subtitles, total_examples=len(subtitles), epochs=epochs)
 
 
-def main(args):
+def train_model(args):
     lang_full, lang_short = language_map(args.language)
     model_name, model_path = get_model_path(args)
 
@@ -108,7 +107,6 @@ def main(args):
 
             train_chunk(model, args.language, sample_p, epochs, args.special_tokens)
             model.save(model_path)
-            print("Model saved as", model_name)
 
 
 if __name__ == "__main__":
@@ -146,7 +144,7 @@ if __name__ == "__main__":
     if args.special_tokens:
         print("Adding tokens <SOS> and <EOS>")
 
-    main(args)
+    train_model(args)
 
 
 
