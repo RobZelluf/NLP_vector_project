@@ -40,7 +40,6 @@ def preprocess_line(line, remove_punctuation=True):
         return WordPunctTokenizer().tokenize(line.lower())
 
 
-
 def language_map(lang):
     lang = lang.lower()
 
