@@ -11,20 +11,22 @@ Example:
 
 `python3 main.py -t --type rnn --src en --tgt ru --src_vm ft_en_d100_sg_st --tgt_vm ft_ru_d100_sg_st -m 100000 -b 4 -i 30 -g`
 
-| parameter         | short | possible options   | example            |
-| ----------------- | ----- | ------------------ | ------------------ |
-| --train           | -t    |                    |                    |
-| --unfiltered      | -u    |                    |                    |
-| --type            |       | `rnn` / `tr`       |                    |
-| --src             |       | `en` / `nl` / `ru` |                    |
-| --tgt             |       | `en` / `nl` / `ru` |                    |
-| --src_vm          |       |                    | `ft_en_d100_sg_st` |
-| --tgt_vm          |       |                    | `ft_en_d100_sg_st` |
-| --hidden_size     |       |                    |                    |
-| --max_batches     | -m    |                    |                    |
-| --batch_size      | -b    |                    |                    |
-| --iters           | -i    |                    |                    |
-| --gpu             | -g    |                    |                    |
+| parameter         | short | default          | possible options   | example            |
+| ----------------- | ----- | ---------------- | ------------------ | ------------------ |
+| --train           | -t    |                  |                    |                    |
+| --unfiltered      | -u    |                  |                    |                    |
+| --keep_chance     | -k    | 0.9              | 0-1                |                    |
+| --type            |       | `tr`             | `rnn` / `tr`       |                    |
+| --src             |       | `en`             | `en` / `nl` / `ru` |                    |
+| --tgt             |       | `nl`             | `en` / `nl` / `ru` |                    |
+| --src_vm          |       |                  |                    | `ft_en_d100_sg_st` |
+| --tgt_vm          |       |                  |                    | `ft_en_d100_sg_st` |
+| --hidden_size     |       | 256              |                    |                    |
+| --max_batches     | -m    | None (all)       |                    |                    |
+| --batch_size      | -b    | 4                |                    |                    |
+| --iters           | -i    | 30               |                    |                    |
+| --gpu             | -g    |                  |                    |                    |
+| --target          |       | I want a dog     |                    |                    |
 
 #### Evaluation
 
