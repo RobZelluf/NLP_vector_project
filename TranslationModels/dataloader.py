@@ -95,9 +95,6 @@ class tr_data_loader(object):
 			for linesrc, linetgt in zip(file_src, file_tgt):
 				if random.random() > self.keep_chance:
 					continue
-
-				print("111111111111111111111111111111111")
-
 				linesrc = preprocess_line(linesrc, remove_punctuation=self.remove_punctuation)
 				linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
 				# linesrc = preprocess_string(linesrc, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
@@ -128,9 +125,7 @@ class tr_data_loader(object):
 				lst.append((linesrc_index, linetgt_index))
 				i += 1
 				if i % self.batch_size == 0:
-					print("2222222222222222222222222")
 					yield self.collateTransformer(lst) if self.isTransformer else self.collateRNN(lst)
 					lst = []
 					if (self.max_batches is not None) and (i > self.max_batches):
-						print("3333333333333333333333333")
 						break
