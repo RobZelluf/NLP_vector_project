@@ -29,25 +29,6 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
     num_lines = get_num_lines(path)
     print("Number of lines", num_lines)
 
-    lines = list(range(num_lines))
-    train_ind = lines[:int(num_lines * train)]
-    val_ind = lines[int(num_lines * train): int(num_lines * (train + val))]
-    test_ind = lines[int((train + val) * num_lines):]
-
-    assert len(lines) == len(train_ind) + len(val_ind) + len(test_ind)
-
-    print("Shuffling")
-    random.shuffle(lines)
-    print("Done shuffling")
-
-    train_lines = [lines[i] for i in train_ind]
-    val_lines = [lines[i] for i in val_ind]
-    test_lines = [lines[i] for i in test_ind]
-
-    train_lines = sorted(train_lines, reverse=True)
-    val_lines = sorted(val_lines, reverse=True)
-    test_lines = sorted(test_lines, reverse=True)
-
     path_en = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + ".en"
     path_to = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + "." + lang_short
 
@@ -68,45 +49,31 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
         test_lines1 = []
         test_lines2 = []
 
-        next_train_line = train_lines.pop()
-        next_val_line = val_lines.pop()
-        next_test_line = test_lines.pop()
-
         while line1 and line2:
             if (line_num + 1) % save_interval == 0:
                 print(lang_full.capitalize() + " - Read", line_num + 1, "out of", num_lines, "lines.")
 
-            save = True
             if filter_lines:
                 if not keep_lines(line1, line2):
-                    save = False
+                    line_num += 1
+                    line1 = file1.readline()
+                    line2 = file2.readline()
+                    continue
 
-            if line_num == next_train_line:
-                if save:
-                    train_lines1.append(line1)
-                    train_lines2.append(line2)
-                    saved_lines += 1
+            r = random.random()
+            saved_lines += 1
 
-                if train_lines:
-                    next_train_line = train_lines.pop()
+            if r < train:
+                train_lines1.append(line1)
+                train_lines2.append(line2)
 
-            if line_num == next_val_line:
-                if save:
-                    val_lines1.append(line1)
-                    val_lines2.append(line2)
-                    saved_lines += 1
+            elif r < train + val:
+                val_lines1.append(line1)
+                val_lines2.append(line2)
 
-                if val_lines:
-                    next_val_line = val_lines.pop()
-
-            if line_num == next_test_line:
-                if save:
-                    test_lines1.append(line1)
-                    test_lines2.append(line2)
-                    saved_lines += 1
-
-                if test_lines:
-                    next_test_line = test_lines.pop()
+            else:
+                test_lines1.append(line1)
+                test_lines2.append(line2)
 
             if len(train_lines1) >= save_interval:
                 save_lines("train", lang_short, train_lines1, train_lines2, filter_lines)
