@@ -60,7 +60,7 @@ def load_random_subtitles(lang, p):
     lang_full, lang_short = language_map(lang)
 
     filename = "OpenSubtitles.raw." + lang_short
-    file = "subtitle_data/" + lang_full + "/" + filename
+    file = "data/subtitle_data/raw/" + filename
 
     with open(file) as f:
         subs = []
@@ -73,12 +73,13 @@ def load_random_subtitles(lang, p):
 
         return subs
 
+
 def load_subtitles(lang="nl", size=-1, start=None, end=None):
     lang_full, lang_short = language_map(lang)
 
     filename = "OpenSubtitles.raw." + lang_short
 
-    file = "subtitle_data/" + lang_full + "/" + filename
+    file = "data/subtitle_data/raw/" + filename
 
     with open(file) as f:
         if start is not None and end is not None:
@@ -113,7 +114,7 @@ def get_num_lines(lang):
 
     filename = "OpenSubtitles.raw." + lang_short
 
-    file = "subtitle_data/" + lang_full + "/" + filename
+    file = "data/subtitle_data/raw/" + filename
     with open(file) as f:
         line = f.readline()
         lines = 0

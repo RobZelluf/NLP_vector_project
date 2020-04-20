@@ -35,8 +35,8 @@ def split(lang, train=0.6, val=0.2, test=0.2):
     val_lines = sorted(val_lines, reverse=True)
     test_lines = sorted(test_lines, reverse=True)
 
-    path_en = "subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + ".en"
-    path_to = "subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + "." + lang_short
+    path_en = "data/subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + ".en"
+    path_to = "data/subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + "." + lang_short
 
     # Make training data
     with open(path_en, "r") as file1, open(path_to) as file2:
@@ -106,10 +106,10 @@ def split(lang, train=0.6, val=0.2, test=0.2):
 
 def save_train_lines(set_type, lang_full, lang_short, lines1, lines2):
     print("Saving " + set_type + " files")
-    with open("subtitle_data/" + lang_full + "/" + set_type + "_en.txt", "a") as new_file1:
+    with open("data/train_data/" + "en_" + lang_short + "/en_" + set_type + ".txt", "a") as new_file1:
         new_file1.writelines(lines1)
 
-    with open("subtitle_data/" + lang_full + "/" + set_type + "_" + lang_short + ".txt", "a") as new_file2:
+    with open("data/train_data/" + "en_" + lang_short + "/" + lang_short + "_" + set_type + ".txt", "a") as new_file2:
         new_file2.writelines(lines2)
 
 
