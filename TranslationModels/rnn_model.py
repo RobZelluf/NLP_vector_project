@@ -155,10 +155,12 @@ class RNNModel():
                 optimizerDec.step()
                 if (i + 1) % 100 == 0:
                     print(i + 1, 'batches done!', end='\r')
+                    torch.save(self.encoder.state_dict(), self.encoder_save_path)
+                    torch.save(self.decoder.state_dict(), self.decoder_save_path)
             end = time.time()
             dur = end - start
             start = end
-            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
+            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60), end = '\n')
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
