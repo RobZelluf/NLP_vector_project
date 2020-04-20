@@ -118,6 +118,10 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
                 test_lines1 = []
                 test_lines2 = []
 
+            line_num += 1
+            line1 = file1.readline()
+            line2 = file2.readline()
+
         if train_lines1:
             save_train_lines("train", lang_short, train_lines1, train_lines2)
 
