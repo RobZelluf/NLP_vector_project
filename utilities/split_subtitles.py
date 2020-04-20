@@ -1,6 +1,7 @@
 import random
 from utils import language_map, get_num_lines
 from time import time
+import os
 
 random.seed(91)
 save_interval = 1e6
@@ -11,6 +12,10 @@ def split(lang, train=0.6, val=0.2, test=0.2):
 
     lang_full, lang_short = language_map(lang)
     print("Splitting", lang_full.capitalize())
+
+    if not os.path.exists("data/train_data/en_" + lang_short):
+        os.mkdir("data/train_data/en_" + lang_short)
+
     num_lines = get_num_lines(lang)
 
     lines = list(range(num_lines))
@@ -56,7 +61,7 @@ def split(lang, train=0.6, val=0.2, test=0.2):
 
         while line1 and line2:
             if (line_num + 1) % save_interval == 0:
-                print(lang_full.capitalize() + "- Read", line_num + 1, "out of", num_lines, "lines.")
+                print(lang_full.capitalize() + " - Read", line_num + 1, "out of", num_lines, "lines.")
 
             if line_num == next_train_line:
                 train_lines1.append(line1)
@@ -99,6 +104,15 @@ def split(lang, train=0.6, val=0.2, test=0.2):
                 test_lines1 = []
                 test_lines2 = []
 
+        if train_lines1:
+            save_train_lines("train", lang_short, train_lines1, train_lines2)
+
+        if val_lines1:
+            save_train_lines("val", lang_short, train_lines1, train_lines2)
+
+        if test_lines1:
+            save_train_lines("test", lang_short, train_lines1, train_lines2)
+
 
 def save_train_lines(set_type, lang_short, lines1, lines2):
     print("Saving " + set_type + " files")
@@ -111,6 +125,7 @@ def save_train_lines(set_type, lang_short, lines1, lines2):
 
 if __name__ == "__main__":
     for lang in ["dutch", "russian"]:
+
         t = time()
         split(lang)
         print('Splitting up everything took {} mins'.format(round((time() - t) / 60, 2)))

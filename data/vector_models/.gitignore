@@ -2,10 +2,10 @@
 
 # Except this file
 !.gitignore
-ft_nl_d100_st.bin
-ft_nl_d100_st_sg.bin
-ft_ru_d100_st.bin
-ft_ru_d100_st_sg.bin
-ft_en_d100_st.bin
-ft_en_d100_st_sg.bin
+ft_en_d100_sg_st.bin
+ft_en_d100_cbow_st.bin
+ft_nl_d100_cbow_st.bin
+ft_nl_d100_sg_st.bin
+ft_ru_d100_cbow_st.bin
+ft_ru_d100_sg_st.bin
 
