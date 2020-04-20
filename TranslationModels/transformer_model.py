@@ -283,24 +283,32 @@ class TransformerModel():
                 optimizer.step()
                 optimizer.zero_grad()
 
+                if (i + 1) % 100 == 0:
+                    dur = (int) (time.time() - start)
+                    print("{0:d} batches done in {2:d}m:{3:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
+                    torch.save(self.encoder.state_dict(), self.encoder_save_path)
+                    torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
+                torch.cuda.empty_cache()
+            torch.save(self.encoder.state_dict(), self.encoder_save_path)
+            torch.save(self.decoder.state_dict(), self.decoder_save_path)
             end = time.time()
-            dur = end - start
+            dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
-            print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
+            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
-    def load(self, encoder_path, decoder_path):
+    def load(self, encoder_path, decoder_path, device="cpu"):
         self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
         self.decoder = Decoder(self.tgt_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
 
         self.encoder.load_state_dict(torch.load(encoder_path, map_location=lambda storage, loc: storage))
         self.decoder.load_state_dict(torch.load(decoder_path, map_location=lambda storage, loc: storage))
 
-        self.encoder.to(DEVICE)
-        self.decoder.to(DEVICE)
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         self.encoder.eval()
         self.decoder.eval()
@@ -338,7 +346,7 @@ class TransformerModel():
             tgt_seq = torch.cat([tgt_seq, next_word], dim=0)
 
         if str_out:
-          tgt_seq = [self.tgt_vm.index2word[x] for x in tgt_seq]
+          tgt_seq = tr.convert_tgt_index_seq_to_str(tgt_seq, self.tgt_vm)
 
         return tgt_seq
 
