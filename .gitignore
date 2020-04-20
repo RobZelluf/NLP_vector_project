@@ -133,3 +133,4 @@ dmypy.json
 /trained_models/
 /data/subtitle_data/
 /data/train_data/
+/data/translation_models/

@@ -4,6 +4,7 @@ import numpy as np
 import gensim
 from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
+from gensim.models.keyedvectors import FastTextKeyedVectors
 
 import sys
 sys.path.append(os.path.abspath(os.path.normpath(os.path.join(__file__, "./../../"))))
@@ -45,7 +46,7 @@ if __name__=='__main__':
     parser.add_argument('--target_vm', type = str, help='Paired corpus in the target language, filename in the data/vector_models folder.', required = True)
 
 
-    parser.add_argument('--hidden_size', type = int, help='', default = 1024)
+    parser.add_argument('--hidden_size', type = int, help='', default = 256)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
@@ -88,8 +89,12 @@ if __name__=='__main__':
     vw_tgt_model = extendPretrainedModel(vw_tgt_model)
     print('++ tgt vector model extended')
 
-    enc_path = './../data/translation_models/' + args.type + '_encoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
-    dec_path = './../data/translation_models/' + args.type + '_decoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
+    translation_models_path = './../data/translation_models/'
+    if not os.path.exists(translation_models_path):
+        os.makedirs(translation_models_path)
+
+    enc_path = translation_models_path + args.type + '_encoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
+    dec_path = translation_models_path + args.type + '_decoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
 
     if args.type == 'rnn':
         translation_model = RNNModel(

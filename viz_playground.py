@@ -31,6 +31,8 @@ def visualize_language(model_name):
         words.extend(["skjafk", "fjhfkja", "fhsdhlf"])
 
     visualize_embeddings(wv, words)
+    print(len(wv.vocab))
+    dir(wv)
 
 
 dirs = os.listdir("data/vector_models")
