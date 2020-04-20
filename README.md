@@ -63,14 +63,14 @@ All translation models are stored in /data/translation_models/.
 For each model, we will have two saved models: encoder and decoder.
 Every saved `.pth` file have the following structure of the name:
 
-| parameter             | possible options   |
-| --------------------- | ------------------ |
-| model type            | rnn / tr           |
-| model part            | encoder / decoder  |
-| src language          | `en` / `nl` / `ru` |
-| tgt language          | `en` / `nl` / `ru` |
-| src vector model name |                    |
-| tgt vector model name |                    |
+| parameter             | possible options       |
+| --------------------- | ---------------------- |
+| model type            | `rnn` / `tr`           |
+| model part            | `encoder` / `decoder`  |
+| src language          | `en` / `nl` / `ru`     |
+| tgt language          | `en` / `nl` / `ru`     |
+| src vector model name |                        |
+| tgt vector model name |                        |
 
 Examples:
 - `rnn_encoder_en_nl_VM_ft_en_d100_sg_st_VM_v2w_nl_d100_cbow.pth`
