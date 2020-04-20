@@ -11,16 +11,26 @@ import os
 
 def get_model_path(args):
     lang_full, lang_short = language_map(args.language)
-    model_name = lang_short + "_d" + str(args.dim)
+
     if args.fasttext:
-        model_name = "ft_" + model_name
+        model_name = "ft_"
+    else:
+        model_name = "w2v_"
+
+    model_name += lang_short + "_d" + str(args.dim)
+
+    if args.skip_gram:
+        model_name += "_sg"
+    else:
+        model_name += "_cbow"
 
     if args.special_tokens:
         model_name += "_st"
-    if args.skip_gram:
-        model_name += "_sg"
+
     model_name += ".model"
     model_path = "trained_models/" + lang_full + "/" + model_name
+
+    print("Model name", model_name)
     return model_name, model_path
 
 
@@ -75,7 +85,6 @@ def get_model(args, model_path):
 
 def train_chunk(model, language, p, epochs, special_tokens):
     subtitles = load_random_subtitles(language, p)
-    print("Training on", len(subtitles), "lines")
     preprocess(subtitles, False)
     if special_tokens:
         add_special_tokens(subtitles)
@@ -108,7 +117,6 @@ def train_model(args):
 
             train_chunk(model, args.language, sample_p, epochs, args.special_tokens)
             model.save(model_path)
-            print("Model saved as", model_name)
 
 
 if __name__ == "__main__":
@@ -120,7 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("--dim", type=int, help="Embedding dimension", default=100)
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
     parser.add_argument("--continue_training", type=bool, default=True)
-    parser.add_argument("--special_tokens", action='store_true')
+    parser.add_argument("--special_tokens", type=bool, default=True)
     parser.add_argument("--skip_gram", action='store_true')
     parser.add_argument("--fasttext", action='store_true')
     parser.add_argument("--cores", type=int, default=-1)
