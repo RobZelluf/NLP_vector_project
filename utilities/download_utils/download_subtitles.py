@@ -30,7 +30,6 @@ def download_subtitle_files(datasets):
             os.mkdir(DIR)
 
         download_url(url, DIR)
-        print("Done downloading", language)
 
 
 def extract_files():
