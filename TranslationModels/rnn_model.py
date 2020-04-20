@@ -95,7 +95,7 @@ class RNNModel():
         except:
             pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio = 0.5, max_batches = None, device = "cpu"):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio=0.5, max_batches=None, device="cpu"):
 
         src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
@@ -103,14 +103,16 @@ class RNNModel():
         if self.decoder is None:
             self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
         if self.decoder is None:
-            self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = tgt_padding_value)
+            self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index=tgt_padding_value)
 
         self.encoder.to(device)
         self.decoder.to(device)
 
-        optimizerEnc = optim.Adam(self.encoder.parameters(), lr = 0.001)
-        optimizerDec = optim.Adam(self.decoder.parameters(), lr = 0.001)
+        #optimizerEnc = optim.Adam(self.encoder.parameters(), lr = 0.001)
+        #optimizerDec = optim.Adam(self.decoder.parameters(), lr = 0.001)
 
+        parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
+        optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
         
         criterion = nn.NLLLoss(ignore_index = tgt_padding_value)
 
@@ -139,11 +141,15 @@ class RNNModel():
                 hidden = self.encoder.init_hidden(len(train_lengths)).to(device)
                 train_inputs, train_targets = train_inputs.to(device), train_targets.to(device)
                 
-                optimizerEnc.zero_grad()
-                optimizerDec.zero_grad()
+                #optimizerEnc.zero_grad()
+                #optimizerDec.zero_grad()
+                optimizer.zero_grad()
                 
                 output, hidden = self.encoder(train_inputs, train_lengths, hidden, src_padding_value)
                 output, hidden = self.decoder(hidden, pad_tgt_seqs = train_targets, teacher_forcing = random.random() < teacher_forcing_ratio)
+
+                train_inputs, train_lengths = None, None
+                torch.cuda.empty_cache()
 
                 output = output.reshape(output.shape[0] * output.shape[1], output.shape[2])
                 train_targets = train_targets.reshape(-1)
@@ -151,35 +157,41 @@ class RNNModel():
                 loss = criterion(output, train_targets)
 
                 loss.backward()
-                optimizerEnc.step()
-                optimizerDec.step()
+                #optimizerEnc.step()
+                #optimizerDec.step()
+                optimizer.step()
+
                 if (i + 1) % 100 == 0:
                     print(i + 1, 'batches done!', end='\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
+                torch.cuda.empty_cache()
+            torch.save(self.encoder.state_dict(), self.encoder_save_path)
+            torch.save(self.decoder.state_dict(), self.decoder_save_path)
             end = time.time()
-            dur = end - start
+            dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60), end = '\n')
+            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
-    def load(self, encoder_path, decoder_path):
+    def load(self, encoder_path, decoder_path, device="cpu"):
         self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
         self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = self.tgt_vm.vocab.get('<SOS>').index)
 
         self.encoder.load_state_dict(torch.load(encoder_path, map_location=lambda storage, loc: storage))
         self.decoder.load_state_dict(torch.load(decoder_path, map_location=lambda storage, loc: storage))
 
-        self.encoder.to(DEVICE)
-        self.decoder.to(DEVICE)
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         self.encoder.eval()
         self.decoder.eval()
 
 
-    def translate(self, src_str, str_out = False, device = 'cpu'):
+    def translate(self, src_str, str_out=False, device='cpu'):
 
         src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
@@ -198,10 +210,10 @@ class RNNModel():
         output, hidden = self.encoder(src_seq, lens, hidden, src_padding_value)
         output, hidden = self.decoder(hidden, teacher_forcing = False)
         
-        output = torch.argmax(output, axis = 2)
+        output = torch.argmax(output, dim=2)
         
         try:
-            output = output[:(output == EOS_token).nonzero()[0][0] + 1]
+            output = output[:(output == self.tgt_vm.vocab.get(EOS_token).index).nonzero()[0][0] + 1]
         except:
             pass
 
