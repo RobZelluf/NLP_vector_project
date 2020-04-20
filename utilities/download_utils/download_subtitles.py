@@ -50,10 +50,10 @@ def extract_files():
                                 new_file.write(data)
 
                     os.remove(DIR + "/" + file)
+                    print("Done unzipping", file)
 
                 if ext[-1] == '.zip':
                     print("Extracting", file)
-                    print("Unzipping", language_dir)
                     DIR = main_dir + language_dir + "/"
                     with ZipFile(DIR + file, 'r') as f:
                         f.extractall(DIR)
