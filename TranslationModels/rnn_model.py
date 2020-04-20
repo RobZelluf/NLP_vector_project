@@ -108,9 +108,11 @@ class RNNModel():
         self.encoder.to(device)
         self.decoder.to(device)
 
-        optimizerEnc = optim.Adam(self.encoder.parameters(), lr = 0.001)
-        optimizerDec = optim.Adam(self.decoder.parameters(), lr = 0.001)
+        #optimizerEnc = optim.Adam(self.encoder.parameters(), lr = 0.001)
+        #optimizerDec = optim.Adam(self.decoder.parameters(), lr = 0.001)
 
+        parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
+        optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
         
         criterion = nn.NLLLoss(ignore_index = tgt_padding_value)
 
@@ -139,11 +141,15 @@ class RNNModel():
                 hidden = self.encoder.init_hidden(len(train_lengths)).to(device)
                 train_inputs, train_targets = train_inputs.to(device), train_targets.to(device)
                 
-                optimizerEnc.zero_grad()
-                optimizerDec.zero_grad()
+                #optimizerEnc.zero_grad()
+                #optimizerDec.zero_grad()
+                optimizer.zero_grad()
                 
                 output, hidden = self.encoder(train_inputs, train_lengths, hidden, src_padding_value)
                 output, hidden = self.decoder(hidden, pad_tgt_seqs = train_targets, teacher_forcing = random.random() < teacher_forcing_ratio)
+
+                train_inputs, train_lengths = None, None
+                torch.cuda.empty_cache()
 
                 output = output.reshape(output.shape[0] * output.shape[1], output.shape[2])
                 train_targets = train_targets.reshape(-1)
@@ -151,16 +157,21 @@ class RNNModel():
                 loss = criterion(output, train_targets)
 
                 loss.backward()
-                optimizerEnc.step()
-                optimizerDec.step()
+                #optimizerEnc.step()
+                #optimizerDec.step()
+                optimizer.step()
+
                 if (i + 1) % 100 == 0:
                     print(i + 1, 'batches done!', end='\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
+                torch.cuda.empty_cache()
+
             end = time.time()
-            dur = end - start
+            dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60), end = '\n')
+            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
@@ -201,7 +212,7 @@ class RNNModel():
         output = torch.argmax(output, axis = 2)
         
         try:
-            output = output[:(output == EOS_token).nonzero()[0][0] + 1]
+            output = output[:(output == self.tgt_vm.vocab.get(EOS_token).index).nonzero()[0][0] + 1]
         except:
             pass
 
