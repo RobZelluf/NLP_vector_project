@@ -5,7 +5,7 @@ import os
 import argparse
 
 random.seed(91)
-save_interval = 1e6
+save_interval = 5e6
 
 
 def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
@@ -103,17 +103,17 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
                     next_test_line = test_lines.pop()
 
             if len(train_lines1) >= save_interval:
-                save_train_lines("train", lang_short, train_lines1, train_lines2)
+                save_lines("train", lang_short, train_lines1, train_lines2)
                 train_lines1 = []
                 train_lines2 = []
 
             if len(val_lines1) >= save_interval:
-                save_train_lines("val", lang_short, val_lines1, val_lines2)
+                save_lines("val", lang_short, val_lines1, val_lines2)
                 val_lines1 = []
                 val_lines2 = []
 
             if len(test_lines1) >= save_interval:
-                save_train_lines("test", lang_short, test_lines1, test_lines2)
+                save_lines("test", lang_short, test_lines1, test_lines2)
 
                 test_lines1 = []
                 test_lines2 = []
@@ -123,18 +123,18 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
             line2 = file2.readline()
 
         if train_lines1:
-            save_train_lines("train", lang_short, train_lines1, train_lines2)
+            save_lines("train", lang_short, train_lines1, train_lines2, filter_lines)
 
         if val_lines1:
-            save_train_lines("val", lang_short, train_lines1, train_lines2)
+            save_lines("val", lang_short, train_lines1, train_lines2, filter_lines)
 
         if test_lines1:
-            save_train_lines("test", lang_short, train_lines1, train_lines2)
+            save_lines("test", lang_short, train_lines1, train_lines2, filter_lines)
 
         print("Saved", saved_lines / num_lines * 100, "% of the lines")
 
 
-def save_train_lines(set_type, lang_short, lines1, lines2, filter=False):
+def save_lines(set_type, lang_short, lines1, lines2, filter=False):
     print("Saving " + set_type + " files")
 
     if filter:
