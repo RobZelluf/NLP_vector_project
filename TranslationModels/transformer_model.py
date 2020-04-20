@@ -226,7 +226,7 @@ class TransformerModel():
         except:
           pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu"):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu", keep_chance = 0.9):
         if self.encoder is None:
           self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
         if self.decoder is None:
@@ -249,7 +249,8 @@ class TransformerModel():
             sos_token=SOS_token,
             eos_token=EOS_token,
             unk_token=UNK_token,
-            max_batches=max_batches
+            max_batches=max_batches,
+            keep_chance=keep_chance
         )
 
         self.encoder.train()
