@@ -47,10 +47,12 @@ if __name__=='__main__':
 
 
     parser.add_argument('--hidden_size', type = int, help='', default = 256)
+    parser.add_argument('--keep_chance', '-k', type = float, help='', default = 0.9)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
+    parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 
     parser.add_argument('--target', type = str, help='Sentence to translate.', default = 'I want a dog')
 
@@ -60,8 +62,9 @@ if __name__=='__main__':
         print('Source and target language identical!')
         sys.exit()
 
-    path_src_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + '/' + args.src + '_train.txt' 
-    path_tgt_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + '/' + args.tgt + '_train.txt' 
+
+    path_src_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_train.txt' 
+    path_tgt_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_train.txt' 
 
     path_src_vw_model_bin = './../data/vector_models/' + args.source_vm + '.bin'
     path_tgt_vw_model_bin = './../data/vector_models/' + args.target_vm + '.bin'
@@ -119,7 +122,9 @@ if __name__=='__main__':
              batch_size=args.batch_size,
              iters=args.iters,
              max_batches = args.max_batches,
-             device = 'cuda:0' if args.gpu else 'cpu')
+             device = 'cuda:0' if args.gpu else 'cpu',
+             keep_chance=args.keep_chance,
+             )
              
 
     '''print('+ Loading model')
