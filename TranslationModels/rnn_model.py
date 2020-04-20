@@ -53,25 +53,25 @@ class Decoder(nn.Module):
         sosrow = torch.tensor([[self.sos_index] * hidden.shape[1]]).to(hidden.device)
         
         if teacher_forcing:
-            output = self.embedding(torch.cat((sosrow, pad_tgt_seqs[:-1,:]), 0))
-            output = F.relu(output)
+            embedded = self.embedding(torch.cat((sosrow, pad_tgt_seqs[:-1,:]), 0))
+            output = F.relu(embedded)
             output, hidden = self.gru(output, hidden)
             output = self.out(output)
             output = self.logsoft(output)
 
         else:
-            o = self.embedding(sosrow)
+            emb = self.embedding(sosrow)
             output = torch.empty(1, hidden.shape[1], self.embedding.num_embeddings).to(hidden.device)
             
             for i in range(MAX_LENGTH if pad_tgt_seqs is None else pad_tgt_seqs.shape[0]):
-                o = F.relu(o)
-                o, hidden = self.gru(o, hidden)
+                emb = F.relu(emb)
+                o, hidden = self.gru(emb, hidden)
                 o = self.out(o)
                 o = self.logsoft(o)
                 
                 o1 = torch.argmax(o, dim = 2)
                 output = torch.cat([output, o], dim = 0)
-                o = self.embedding(o1)
+                emb = self.embedding(o1)
                 
             output = output[1:, :, :]
 
@@ -145,8 +145,7 @@ class RNNModel():
 
                 del train_inputs
                 del train_lengths
-                
-                torch.cuda.empty_cache()
+                del hidden 
 
                 output = output.reshape(output.shape[0] * output.shape[1], output.shape[2])
                 train_targets = train_targets.reshape(-1)
@@ -158,7 +157,7 @@ class RNNModel():
 
                 if (i + 1) % 100 == 0:
                     dur = (int) (time.time() - start)
-                    print("{0:d} batches done in {2:d}m:{3:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
+                    print("{0:d} batches done in {1:d}m:{2:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
