@@ -26,7 +26,6 @@ def save_keyed_vectors(model_path, model_name):
 
     model.init_sims(replace=True)
     if "ft" in model_name:
-        print("Binning fasttext model!")
         model.wv.save(save_path + model_name + ".bin", separately=[])
     else:
         with open(save_path + model_name + ".bin", "wb") as f:
@@ -42,7 +41,7 @@ def bin_all():
                 model_path = DIR + lang + "/"
                 model_name = str(ext[0])
 
-                print("Binning", model_name)
+                print("Binning", file)
                 try:
                     save_keyed_vectors(model_path, model_name)
                 except:
