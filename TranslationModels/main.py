@@ -45,7 +45,7 @@ if __name__=='__main__':
     parser.add_argument('--target_vm', type = str, help='Paired corpus in the target language, filename in the data/vector_models folder.', required = True)
 
 
-    parser.add_argument('--hidden_size', type = int, help='', default = 1024)
+    parser.add_argument('--hidden_size', type = int, help='', default = 256)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)

@@ -53,25 +53,25 @@ class Decoder(nn.Module):
         sosrow = torch.tensor([[self.sos_index] * hidden.shape[1]]).to(hidden.device)
         
         if teacher_forcing:
-            embedded = self.embedding(torch.cat((sosrow, pad_tgt_seqs[:-1,:]), 0))
-            output = F.relu(embedded)
+            output = self.embedding(torch.cat((sosrow, pad_tgt_seqs[:-1,:]), 0))
+            output = F.relu(output)
             output, hidden = self.gru(output, hidden)
             output = self.out(output)
             output = self.logsoft(output)
 
         else:
-            emb = self.embedding(sosrow)
+            o = self.embedding(sosrow)
             output = torch.empty(1, hidden.shape[1], self.embedding.num_embeddings).to(hidden.device)
             
             for i in range(MAX_LENGTH if pad_tgt_seqs is None else pad_tgt_seqs.shape[0]):
-                emb = F.relu(emb)
-                o, hidden = self.gru(emb, hidden)
+                o = F.relu(o)
+                o, hidden = self.gru(o, hidden)
                 o = self.out(o)
                 o = self.logsoft(o)
                 
-                o1 = torch.argmax(o, axis = 2)
+                o1 = torch.argmax(o, dim = 2)
                 output = torch.cat([output, o], dim = 0)
-                emb = self.embedding(o1)
+                o = self.embedding(o1)
                 
             output = output[1:, :, :]
 
@@ -108,9 +108,6 @@ class RNNModel():
         self.encoder.to(device)
         self.decoder.to(device)
 
-        #optimizerEnc = optim.Adam(self.encoder.parameters(), lr = 0.001)
-        #optimizerDec = optim.Adam(self.decoder.parameters(), lr = 0.001)
-
         parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
         optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
         
@@ -141,14 +138,14 @@ class RNNModel():
                 hidden = self.encoder.init_hidden(len(train_lengths)).to(device)
                 train_inputs, train_targets = train_inputs.to(device), train_targets.to(device)
                 
-                #optimizerEnc.zero_grad()
-                #optimizerDec.zero_grad()
                 optimizer.zero_grad()
                 
                 output, hidden = self.encoder(train_inputs, train_lengths, hidden, src_padding_value)
                 output, hidden = self.decoder(hidden, pad_tgt_seqs = train_targets, teacher_forcing = random.random() < teacher_forcing_ratio)
 
-                train_inputs, train_lengths = None, None
+                del train_inputs
+                del train_lengths
+                
                 torch.cuda.empty_cache()
 
                 output = output.reshape(output.shape[0] * output.shape[1], output.shape[2])
@@ -157,12 +154,11 @@ class RNNModel():
                 loss = criterion(output, train_targets)
 
                 loss.backward()
-                #optimizerEnc.step()
-                #optimizerDec.step()
                 optimizer.step()
 
                 if (i + 1) % 100 == 0:
-                    print(i + 1, 'batches done!', end='\r')
+                    dur = (int) (time.time() - start)
+                    print("{0:d} batches done in {2:d}m:{3:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
@@ -210,7 +206,7 @@ class RNNModel():
         output, hidden = self.encoder(src_seq, lens, hidden, src_padding_value)
         output, hidden = self.decoder(hidden, teacher_forcing = False)
         
-        output = torch.argmax(output, axis = 2)
+        output = torch.argmax(output, dim = 2)
         
         try:
             output = output[:(output == self.tgt_vm.vocab.get(EOS_token).index).nonzero()[0][0] + 1]
