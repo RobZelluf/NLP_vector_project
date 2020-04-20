@@ -4,6 +4,7 @@ import numpy as np
 import gensim
 from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
+from gensim.models.keyedvectors import FastTextKeyedVectors
 
 import sys
 sys.path.append(os.path.abspath(os.path.normpath(os.path.join(__file__, "./../../"))))
