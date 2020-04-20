@@ -259,9 +259,7 @@ class TransformerModel():
         tgt_padding_value = self.tgt_vm.vocab.get(EOS_token).index
         start = time.time()
 
-        print("11111111111111111111111111111111111111111111111")
         for epoch in range(iters):
-            print("222222222222222222222222222222222222222222222222222")
             for i, batch in enumerate(trainloader):
                 print("333333333333333333333333333333333333333333333333333")
                 src_seqs, src_mask, tgt_seqs = batch

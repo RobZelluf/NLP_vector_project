@@ -92,6 +92,7 @@ class tr_data_loader(object):
 		with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
 			lst = []
 			i = 0
+			print(self.max_batches)
 			for linesrc, linetgt in zip(file_src, file_tgt):
 				if random.random() > self.keep_chance:
 					continue
