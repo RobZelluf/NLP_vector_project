@@ -11,16 +11,26 @@ import os
 
 def get_model_path(args):
     lang_full, lang_short = language_map(args.language)
-    model_name = lang_short + "_d" + str(args.dim)
+
     if args.fasttext:
-        model_name = "ft_" + model_name
+        model_name = "ft_"
+    else:
+        model_name = "w2v_"
+
+    model_name += lang_short + "_d" + str(args.dim)
+
+    if args.skip_gram:
+        model_name += "_sg"
+    else:
+        model_name += "_cbow"
 
     if args.special_tokens:
         model_name += "_st"
-    if args.skip_gram:
-        model_name += "_sg"
+
     model_name += ".model"
     model_path = "trained_models/" + lang_full + "/" + model_name
+
+    print("Model name", model_name)
     return model_name, model_path
 
 
@@ -41,7 +51,7 @@ def get_model(args, model_path):
     if os.path.exists(model_path) and args.continue_training:
         print("Continuing training existing model")
         if args.fasttext:
-            model = FastText(model_path)
+            model = FastText.load(model_path)
         else:
             model = Word2Vec.load(model_path)
     else:
@@ -118,7 +128,7 @@ if __name__ == "__main__":
     parser.add_argument("--dim", type=int, help="Embedding dimension", default=100)
     parser.add_argument("--log", type=bool, help="Pass if you want gensim to print logs")
     parser.add_argument("--continue_training", type=bool, default=True)
-    parser.add_argument("--special_tokens", action='store_true')
+    parser.add_argument("--special_tokens", type=bool, default=True)
     parser.add_argument("--skip_gram", action='store_true')
     parser.add_argument("--fasttext", action='store_true')
     parser.add_argument("--cores", type=int, default=-1)
