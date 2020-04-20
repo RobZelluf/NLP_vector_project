@@ -109,8 +109,10 @@ class RNNModel():
         self.decoder.to(device)
 
         parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
-        optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
-        
+        #optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
+        optimizerEnc = torch.optim.Adam(self.encoder.parameters())
+        optimizerDec = torch.optim.Adam(self.decoder.parameters())
+
         criterion = nn.NLLLoss(ignore_index = tgt_padding_value)
 
         trainloader = tr_data_loader(
@@ -138,8 +140,10 @@ class RNNModel():
                 hidden = self.encoder.init_hidden(len(train_lengths)).to(device)
                 train_inputs, train_targets = train_inputs.to(device), train_targets.to(device)
                 
-                optimizer.zero_grad()
-                
+                #optimizer.zero_grad()
+                optimizerEnc.zero_grad()
+                optimizerDec.zero_grad()
+
                 output, hidden = self.encoder(train_inputs, train_lengths, hidden, src_padding_value)
                 output, hidden = self.decoder(hidden, pad_tgt_seqs = train_targets, teacher_forcing = random.random() < teacher_forcing_ratio)
 
@@ -153,7 +157,9 @@ class RNNModel():
                 loss = criterion(output, train_targets)
 
                 loss.backward()
-                optimizer.step()
+                #optimizer.step()
+                optimizerEnc.step()
+                optimizerDec.step()
 
                 if (i + 1) % 100 == 0:
                     dur = (int) (time.time() - start)
