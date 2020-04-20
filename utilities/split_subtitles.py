@@ -32,8 +32,8 @@ def split(lang, train=0.6, val=0.2, test=0.2):
     val_lines = sorted(val_lines, reverse=True)
     test_lines = sorted(test_lines, reverse=True)
 
-    path_en = "data/subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + ".en"
-    path_to = "data/subtitle_data/" + lang_full + "/OpenSubtitles.en-" + lang_short + "." + lang_short
+    path_en = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + ".en"
+    path_to = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + "." + lang_short
 
     # Make training data
     with open(path_en, "r") as file1, open(path_to) as file2:

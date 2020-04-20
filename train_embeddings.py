@@ -111,7 +111,6 @@ def train_model(args):
     for loop in range(args.loops):
         epochs = int(max(1, args.epochs - loop))
         chunk_list = list(range(args.chunks))
-        random.shuffle(chunk_list)
         for i, chunk in enumerate(chunk_list):
             print("Loop", loop + 1, "/", args.loops, "- Chunk, ", i + 1, "/", args.chunks, "- Epochs:", epochs)
 
