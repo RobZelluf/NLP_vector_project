@@ -16,6 +16,15 @@ def download_url(url, DIR):
             f.write(chunk)
 
 
+def remove_ids_files():
+    main_dir = "data/subtitle_data/"
+    for dir in os.listdir(main_dir):
+        for file in os.listdir(main_dir + dir):
+            if ".ids" in file:
+                os.remove(main_dir + dir + "/" + file)
+                print("Removed", file)
+
+
 def download_subtitle_files(datasets):
     print("\nDownloading languages\n")
     for language, url in datasets:
@@ -77,3 +86,6 @@ def download_all_subtitles(skip_translated=False, skip_raw=True):
 
     download_subtitle_files(datasets)
     extract_files()
+
+
+remove_ids_files()
