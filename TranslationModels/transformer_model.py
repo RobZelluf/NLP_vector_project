@@ -261,6 +261,7 @@ class TransformerModel():
 
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):
+                print("11111111111111111111111111111111111111111111111")
                 src_seqs, src_mask, tgt_seqs = batch
 
                 src_seqs = src_seqs.to(device)
