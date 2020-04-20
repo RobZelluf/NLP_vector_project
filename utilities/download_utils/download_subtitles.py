@@ -19,7 +19,7 @@ def download_subtitle_files(datasets):
     print("\nDownloading languages\n")
     for language, url in datasets:
         print("Downloading", language)
-        DIR = "subtitle_data/" + language
+        DIR = "data/subtitle_data/" + language
         if not os.path.exists(DIR):
             os.mkdir(DIR)
 
@@ -36,12 +36,12 @@ def download_subtitle_files(datasets):
 
 def extract_files():
     print("\nUnzipping files\n")
-    for language_dir in os.listdir("subtitle_data"):
-        if os.path.isdir("subtitle_data/" + language_dir):
-            for file in os.listdir("subtitle_data/" + language_dir):
+    for language_dir in os.listdir("data/subtitle_data"):
+        if os.path.isdir("data/subtitle_data/" + language_dir):
+            for file in os.listdir("data/subtitle_data/" + language_dir):
                 ext = os.path.splitext(file)
                 if ext[-1] == ".gz":
-                    DIR = "subtitle_data/" + language_dir
+                    DIR = "data/subtitle_data/" + language_dir
                     new_filename = ext[0]
                     with gzip.GzipFile(DIR + "/" + file, 'rb') as gzip_file:
                         with open(DIR + "/" + new_filename, 'wb') as new_file:
@@ -52,7 +52,7 @@ def extract_files():
 
                 if ext[-1] == '.zip':
                     print("Unzipping", language_dir)
-                    DIR = "subtitle_data/" + language_dir + "/"
+                    DIR = "data/subtitle_data/" + language_dir + "/"
                     with ZipFile(DIR + file, 'r') as f:
                         f.extractall(DIR)
 
@@ -61,10 +61,10 @@ def extract_files():
 
 
 def download_all_subtitles():
-    if not os.path.exists("subtitle_data"):
-        os.mkdir("subtitle_data")
+    if not os.path.exists("data/subtitle_data"):
+        os.mkdir("data/subtitle_data")
 
-    with open("utilities/download_utils/subtitle_download_data.csv", "r") as f:
+    with open("utilities/download_utils/raw_subtitle_data.csv", "r") as f:
         datasets = csv.reader(f)
         datasets = list(datasets)
 
