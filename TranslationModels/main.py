@@ -47,6 +47,7 @@ if __name__=='__main__':
 
 
     parser.add_argument('--hidden_size', type = int, help='', default = 256)
+    parser.add_argument('--keep_chance', '-k', type = float, help='', default = 0.9)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
@@ -121,7 +122,9 @@ if __name__=='__main__':
              batch_size=args.batch_size,
              iters=args.iters,
              max_batches = args.max_batches,
-             device = 'cuda:0' if args.gpu else 'cpu')
+             device = 'cuda:0' if args.gpu else 'cpu',
+             keep_chance=args.keep_chance,
+             )
              
 
     '''print('+ Loading model')
