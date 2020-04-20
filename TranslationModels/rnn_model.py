@@ -167,7 +167,8 @@ class RNNModel():
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
                 torch.cuda.empty_cache()
-
+            torch.save(self.encoder.state_dict(), self.encoder_save_path)
+            torch.save(self.decoder.state_dict(), self.decoder_save_path)
             end = time.time()
             dur = (int) (end - start)
             start = end
