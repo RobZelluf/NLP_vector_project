@@ -86,6 +86,5 @@ def download_all_subtitles(skip_translated=False, skip_raw=True):
 
     download_subtitle_files(datasets)
     extract_files()
+    remove_ids_files()
 
-
-remove_ids_files()
