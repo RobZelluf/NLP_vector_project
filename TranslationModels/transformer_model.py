@@ -292,13 +292,14 @@ class TransformerModel():
                 torch.cuda.empty_cache()
             torch.save(self.encoder.state_dict(), self.encoder_save_path)
             torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
             end = time.time()
             dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
 
     def load(self, encoder_path, decoder_path, device="cpu"):
         self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)

@@ -95,7 +95,7 @@ class RNNModel():
         except:
             pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio = 0.5, max_batches = None, device = "cpu"):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio=0.5, max_batches=None, device="cpu"):
 
         src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
@@ -103,7 +103,7 @@ class RNNModel():
         if self.decoder is None:
             self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
         if self.decoder is None:
-            self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = tgt_padding_value)
+            self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index=tgt_padding_value)
 
         self.encoder.to(device)
         self.decoder.to(device)
@@ -163,8 +163,10 @@ class RNNModel():
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
                 torch.cuda.empty_cache()
+
             torch.save(self.encoder.state_dict(), self.encoder_save_path)
             torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
             end = time.time()
             dur = (int) (end - start)
             start = end
@@ -173,21 +175,21 @@ class RNNModel():
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
-    def load(self, encoder_path, decoder_path):
+    def load(self, encoder_path, decoder_path, device="cpu"):
         self.encoder = Encoder(self.src_vm.vectors, hidden_size=self.hidden_size)
         self.decoder = Decoder(self.tgt_vm.vectors, hidden_size=self.hidden_size, sos_index = self.tgt_vm.vocab.get('<SOS>').index)
 
         self.encoder.load_state_dict(torch.load(encoder_path, map_location=lambda storage, loc: storage))
         self.decoder.load_state_dict(torch.load(decoder_path, map_location=lambda storage, loc: storage))
 
-        self.encoder.to(DEVICE)
-        self.decoder.to(DEVICE)
+        self.encoder.to(device)
+        self.decoder.to(device)
 
         self.encoder.eval()
         self.decoder.eval()
 
 
-    def translate(self, src_str, str_out = False, device = 'cpu'):
+    def translate(self, src_str, str_out=False, device='cpu'):
 
         src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
@@ -206,7 +208,7 @@ class RNNModel():
         output, hidden = self.encoder(src_seq, lens, hidden, src_padding_value)
         output, hidden = self.decoder(hidden, teacher_forcing = False)
         
-        output = torch.argmax(output, dim = 2)
+        output = torch.argmax(output, dim=2)
         
         try:
             output = output[:(output == self.tgt_vm.vocab.get(EOS_token).index).nonzero()[0][0] + 1]
