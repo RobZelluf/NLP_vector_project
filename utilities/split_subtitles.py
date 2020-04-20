@@ -13,6 +13,7 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
 
     lang_full, lang_short = language_map(lang)
     print("Splitting", lang_full.capitalize())
+    print("Filtering:", filter_lines)
 
     if not os.path.exists("data/train_data/"):
         os.mkdir("data/train_data/")
@@ -75,48 +76,50 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
             if (line_num + 1) % save_interval == 0:
                 print(lang_full.capitalize() + " - Read", line_num + 1, "out of", num_lines, "lines.")
 
+            save = True
             if filter_lines:
                 if not keep_lines(line1, line2):
-                    line_num += 1
-                    line1 = file1.readline()
-                    line2 = file2.readline()
-                    continue
-
-            saved_lines += 1
+                    save = False
 
             if line_num == next_train_line:
-                train_lines1.append(line1)
-                train_lines2.append(line2)
+                if save:
+                    train_lines1.append(line1)
+                    train_lines2.append(line2)
+                    saved_lines += 1
 
                 if train_lines:
                     next_train_line = train_lines.pop()
 
             if line_num == next_val_line:
-                val_lines1.append(line1)
-                val_lines2.append(line2)
+                if save:
+                    val_lines1.append(line1)
+                    val_lines2.append(line2)
+                    saved_lines += 1
 
                 if val_lines:
                     next_val_line = val_lines.pop()
 
             if line_num == next_test_line:
-                test_lines1.append(line1)
-                test_lines2.append(line2)
+                if save:
+                    test_lines1.append(line1)
+                    test_lines2.append(line2)
+                    saved_lines += 1
 
                 if test_lines:
                     next_test_line = test_lines.pop()
 
             if len(train_lines1) >= save_interval:
-                save_lines("train", lang_short, train_lines1, train_lines2)
+                save_lines("train", lang_short, train_lines1, train_lines2, filter_lines)
                 train_lines1 = []
                 train_lines2 = []
 
             if len(val_lines1) >= save_interval:
-                save_lines("val", lang_short, val_lines1, val_lines2)
+                save_lines("val", lang_short, val_lines1, val_lines2, filter_lines)
                 val_lines1 = []
                 val_lines2 = []
 
             if len(test_lines1) >= save_interval:
-                save_lines("test", lang_short, test_lines1, test_lines2)
+                save_lines("test", lang_short, test_lines1, test_lines2, filter_lines)
 
                 test_lines1 = []
                 test_lines2 = []
@@ -138,7 +141,7 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
 
 
 def save_lines(set_type, lang_short, lines1, lines2, filter=False):
-    print("Saving " + set_type + " files")
+    print("Saving " + set_type + " files. Filtered:", filter)
 
     if filter:
         dir1 = "data/train_data/" + "en_" + lang_short + "_filtered/en_" + set_type + ".txt"
