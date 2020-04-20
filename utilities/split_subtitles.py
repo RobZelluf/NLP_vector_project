@@ -1,7 +1,6 @@
 import random
 from utils import language_map, get_num_lines
 from time import time
-import argparse
 
 random.seed(91)
 save_interval = 1e6
