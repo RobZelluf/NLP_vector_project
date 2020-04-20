@@ -95,7 +95,7 @@ class RNNModel():
         except:
             pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio=0.5, max_batches=None, device="cpu"):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio=0.5, max_batches=None, device="cpu", keep_chance = 0.9):
 
         src_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
@@ -125,7 +125,8 @@ class RNNModel():
             eos_token=EOS_token,
             unk_token=UNK_token,
             max_batches=max_batches,
-            isTransformer=False
+            isTransformer=False,
+            keep_chance = keep_chance
         )
 
         self.encoder.train()
@@ -133,6 +134,7 @@ class RNNModel():
 
         
         start = time.time()
+        loss = None
 
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):

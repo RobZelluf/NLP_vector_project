@@ -226,7 +226,7 @@ class TransformerModel():
         except:
           pass
 
-    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu"):
+    def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu", keep_chance = 0.9):
         if self.encoder is None:
           self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)
         if self.decoder is None:
@@ -249,7 +249,8 @@ class TransformerModel():
             sos_token=SOS_token,
             eos_token=EOS_token,
             unk_token=UNK_token,
-            max_batches=max_batches
+            max_batches=max_batches,
+            keep_chance=keep_chance
         )
 
         self.encoder.train()
@@ -260,6 +261,7 @@ class TransformerModel():
 
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):
+                print("333333333333333333333333333333333333333333333333333")
                 src_seqs, src_mask, tgt_seqs = batch
 
                 src_seqs = src_seqs.to(device)
@@ -296,6 +298,7 @@ class TransformerModel():
             end = time.time()
             dur = (int) (end - start)
             start = end
+            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
