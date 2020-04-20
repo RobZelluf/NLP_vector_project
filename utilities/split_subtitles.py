@@ -88,23 +88,23 @@ def split(lang, train=0.6, val=0.2, test=0.2):
             line2 = file2.readline()
 
             if len(train_lines1) >= save_interval:
-                save_train_lines("train", lang_full, lang_short, train_lines1, train_lines2)
+                save_train_lines("train", lang_short, train_lines1, train_lines2)
                 train_lines1 = []
                 train_lines2 = []
 
             if len(val_lines1) >= save_interval:
-                save_train_lines("val", lang_full, lang_short, val_lines1, val_lines2)
+                save_train_lines("val", lang_short, val_lines1, val_lines2)
                 val_lines1 = []
                 val_lines2 = []
 
             if len(test_lines1) >= save_interval:
-                save_train_lines("test", lang_full, lang_short, test_lines1, test_lines2)
+                save_train_lines("test", lang_short, test_lines1, test_lines2)
 
                 test_lines1 = []
                 test_lines2 = []
 
 
-def save_train_lines(set_type, lang_full, lang_short, lines1, lines2):
+def save_train_lines(set_type, lang_short, lines1, lines2):
     print("Saving " + set_type + " files")
     with open("data/train_data/" + "en_" + lang_short + "/en_" + set_type + ".txt", "a") as new_file1:
         new_file1.writelines(lines1)
