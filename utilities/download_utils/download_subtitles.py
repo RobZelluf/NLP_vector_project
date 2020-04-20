@@ -62,24 +62,25 @@ def extract_files():
                     print("Done unzipping", file)
 
 
-def download_all_subtitles(translated=True, raw=True):
+def download_all_subtitles(skip_translated=False, skip_raw=True):
     if not os.path.exists("data/subtitle_data"):
         os.mkdir("data/subtitle_data")
 
     datasets = []
 
-    if translated:
+    if not skip_translated:
+        print("LOL")
         with open("utilities/download_utils/subtitle_data.csv", "r") as f:
             new_datatsets = csv.reader(f)
             datasets.extend(list(new_datatsets))
 
-    if raw:
+    if not skip_raw:
+        print("2LOL")
         with open("utilities/download_utils/raw_subtitle_data.csv") as f:
             more_datatsets = csv.reader(f)
             datasets.extend(list(more_datatsets))
 
+    exit()
+
     download_subtitle_files(datasets)
     extract_files()
-
-
-download_all_subtitles()
