@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 import torch
 import torch.nn as nn
@@ -20,7 +21,7 @@ class tr_data_loader(object):
 				 filesrc, filetgt, batch_size,
 				 sos_token, eos_token, unk_token,
 				 remove_punctuation=False,
-				 isTransformer=True, max_batches=None):
+				 isTransformer=True, max_batches=None, keep_chance=0.1):
 		self.filesrc = filesrc
 		self.filetgt = filetgt
 		self.batch_size = batch_size
@@ -43,6 +44,7 @@ class tr_data_loader(object):
 
 		self.isTransformer = isTransformer
 		self.max_batches = max_batches
+		self.keep_chance = keep_chance
 
 	def collateTransformer(self, list_of_samples):
 		"""Merges a list of samples to form a mini-batch.
@@ -91,7 +93,8 @@ class tr_data_loader(object):
 			lst = []
 			i = 0
 			for linesrc, linetgt in zip(file_src, file_tgt):
-
+				if random.random() > self.keep_chance:
+					continue
 				linesrc = preprocess_line(linesrc, remove_punctuation=self.remove_punctuation)
 				linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
 				# linesrc = preprocess_string(linesrc, [strip_punctuation, strip_tags, strip_multiple_whitespaces])
