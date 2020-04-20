@@ -283,14 +283,13 @@ class TransformerModel():
                 optimizer.step()
                 optimizer.zero_grad()
 
+            torch.save(self.encoder.state_dict(), self.encoder_save_path)
+            torch.save(self.decoder.state_dict(), self.decoder_save_path)
+
             end = time.time()
             dur = end - start
             start = end
             print("Epoch {0:d}: Loss:\t{1:0.3f} \t\t {0:d}m:{0:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
-            print("Epoch {0:d}: Loss:\t{1:0.3f}".format(epoch + 1, loss.item()))
-
-        torch.save(self.encoder.state_dict(), self.encoder_save_path)
-        torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
     def load(self, encoder_path, decoder_path, device="cpu"):
         self.encoder = Encoder(self.src_vm.vectors, n_blocks=3, n_heads=10, n_hidden=self.hidden_size)

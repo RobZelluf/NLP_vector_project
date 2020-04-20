@@ -89,8 +89,12 @@ if __name__=='__main__':
     vw_tgt_model = extendPretrainedModel(vw_tgt_model)
     print('++ tgt vector model extended')
 
-    enc_path = './../data/translation_models/' + args.type + '_encoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
-    dec_path = './../data/translation_models/' + args.type + '_decoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
+    translation_models_path = './../data/translation_models/'
+    if not os.path.exists(translation_models_path):
+        os.makedirs(translation_models_path)
+
+    enc_path = translation_models_path + args.type + '_encoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
+    dec_path = translation_models_path + args.type + '_decoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
 
     if args.type == 'rnn':
         translation_model = RNNModel(
