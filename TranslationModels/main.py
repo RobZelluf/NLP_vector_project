@@ -4,6 +4,7 @@ import numpy as np
 import gensim
 from gensim.test.utils import datapath as gensim_datapath
 from gensim.models import KeyedVectors
+from gensim.models.keyedvectors import FastTextKeyedVectors
 
 import sys
 sys.path.append(os.path.abspath(os.path.normpath(os.path.join(__file__, "./../../"))))
@@ -40,20 +41,18 @@ if __name__=='__main__':
     #parser.add_argument('--extend', '-e', action = 'store_true', help='Should the word vector space be extended with SOS, EOS and UNK tokens.')
     parser.add_argument('--src', choices = ['en', 'nl', 'ru'], help='Source language for translation.', default = 'en')
     parser.add_argument('--tgt', choices = ['en', 'nl', 'ru'], help='Target language for translation.', default = 'nl')
-    parser.add_argument('--vector_type', '-v', choices = ['st', 'w2v', 'cbow', 'sg', 'ft', 'gl'], help='Vector type.', default = 'st')
 
-    parser.add_argument('--source_corpus', type = str, help='Paired corpus in the source languaga for training, filename in the data/train_data folder.', default = '')
-    parser.add_argument('--target_corpus', type = str, help='Paired corpus in the target languaga for training, filename in the data/train_data folder.', default = '')
-
-    parser.add_argument('--source_vectors', type = str, help='Word vectors for the source languaga, filename in the data/vector_models folder.', default = '')
-    parser.add_argument('--target_vectors', type = str, help='Paired corpus in the target languaga, filename in the data/vector_models folder.', default = '')
+    parser.add_argument('--source_vm', type = str, help='Word vectors for the source language, filename in the data/vector_models folder.', required = True)
+    parser.add_argument('--target_vm', type = str, help='Paired corpus in the target language, filename in the data/vector_models folder.', required = True)
 
 
-    parser.add_argument('--hidden_size', type = int, help='', default = 1024)
+    parser.add_argument('--hidden_size', type = int, help='', default = 256)
+    parser.add_argument('--keep_chance', '-k', type = float, help='', default = 0.9)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
     parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
+    parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 
     parser.add_argument('--target', type = str, help='Sentence to translate.', default = 'I want a dog')
 
@@ -64,22 +63,11 @@ if __name__=='__main__':
         sys.exit()
 
 
-    if args.source_corpus == '':
-        args.source_corpus = 'OpenSubtitles.' + args.src + '-' + args.tgt + '.' + args.src
-    if args.target_corpus == '':
-        args.target_corpus = 'OpenSubtitles.' + args.src + '-' + args.tgt + '.' + args.tgt
+    path_src_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_train.txt' 
+    path_tgt_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_train.txt' 
 
-    path_src_train_file = './../data/train_data/' + args.source_corpus 
-    path_tgt_train_file = './../data/train_data/' + args.target_corpus
-
-    if args.source_vectors == '':
-        args.source_vectors = args.src + '_d100' + '_' + args.vector_type + '.bin'
-    if args.target_vectors == '':
-        args.target_vectors = args.tgt + '_d100' + '_' + args.vector_type + '.bin'
-
-    path_src_vw_model_bin = './../data/vector_models/' + args.source_vectors
-    path_tgt_vw_model_bin = './../data/vector_models/' + args.target_vectors
-
+    path_src_vw_model_bin = './../data/vector_models/' + args.source_vm + '.bin'
+    path_tgt_vw_model_bin = './../data/vector_models/' + args.target_vm + '.bin'
 
 
     if not all([os.path.isfile(fname) for fname in [path_src_train_file, path_tgt_train_file, path_src_vw_model_bin, path_tgt_vw_model_bin]]):
@@ -87,19 +75,29 @@ if __name__=='__main__':
         sys.exit()
 
     print('+ preparing src vector model')
-    vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
+    if "ft" in args.source_vm:
+        vw_src_model = FastTextKeyedVectors.load(path_src_vw_model_bin)
+    else:
+        vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
     print('++ src vector model read')
     vw_src_model = extendPretrainedModel(vw_src_model)
     print('++ src vector model extended')
 
     print('+ preparing tgt vector model')
-    vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
+    if "ft" in args.target_vm:
+        vw_tgt_model = FastTextKeyedVectors.load(path_tgt_vw_model_bin)
+    else:
+        vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
     print('++ tgt vector model read')
     vw_tgt_model = extendPretrainedModel(vw_tgt_model)
     print('++ tgt vector model extended')
 
-    enc_path = './../data/translation_models/' + args.type + '_encoder_model_' + args.src + '-' + args.tgt + '.pth'
-    dec_path = './../data/translation_models/' + args.type + '_decoder_model_' + args.src + '-' + args.tgt + '.pth'
+    translation_models_path = './../data/translation_models/'
+    if not os.path.exists(translation_models_path):
+        os.makedirs(translation_models_path)
+
+    enc_path = translation_models_path + args.type + '_encoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
+    dec_path = translation_models_path + args.type + '_decoder_' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.pth'
 
     if args.type == 'rnn':
         translation_model = RNNModel(
@@ -124,7 +122,9 @@ if __name__=='__main__':
              batch_size=args.batch_size,
              iters=args.iters,
              max_batches = args.max_batches,
-             device = 'cuda:0' if args.gpu else 'cpu')
+             device = 'cuda:0' if args.gpu else 'cpu',
+             keep_chance=args.keep_chance,
+             )
              
 
     '''print('+ Loading model')

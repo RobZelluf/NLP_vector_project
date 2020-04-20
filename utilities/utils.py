@@ -118,3 +118,15 @@ def get_num_lines(path):
             lines += 1
 
         return lines
+
+
+def keep_lines(line1, line2, threshold=0.55):
+    if len(line1) > 500 or len(line2) > 500:
+        return False
+
+    avg_length = (len(line1) + len(line2)) / 2
+
+    threshold_length = max(12, threshold * avg_length)
+
+    diff = abs(len(line1) - len(line2))
+    return diff <= threshold_length

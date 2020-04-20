@@ -93,6 +93,8 @@ def train_chunk(model, language, p, epochs, special_tokens):
     preprocess(subtitles, False)
     if special_tokens:
         add_special_tokens(subtitles)
+        assert "<SOS>" in model
+        assert "<EOS>" in model
 
     model.build_vocab(subtitles, progress_per=10000, update=model.wv.vocab)
     model.train(subtitles, total_examples=len(subtitles), epochs=epochs)

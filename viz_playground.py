@@ -13,6 +13,8 @@ def visualize_language(model_name):
     else:
         wv = KeyedVectors.load_word2vec_format(path, binary=True)
 
+    print("Vocab size:", len(wv.vocab))
+
     words = [""]
     if "en" in model_name:
         words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
@@ -29,6 +31,8 @@ def visualize_language(model_name):
         words.extend(["skjafk", "fjhfkja", "fhsdhlf"])
 
     visualize_embeddings(wv, words)
+    print(len(wv.vocab))
+    dir(wv)
 
 
 dirs = os.listdir("data/vector_models")

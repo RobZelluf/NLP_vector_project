@@ -14,6 +14,7 @@ Example:
 | parameter         | short | possible options   | example            |
 | ----------------- | ----- | ------------------ | ------------------ |
 | --train           | -t    |                    |                    |
+| --unfiltered      | -u    |                    |                    |
 | --type            |       | `rnn` / `tr`       |                    |
 | --src             |       | `en` / `nl` / `ru` |                    |
 | --tgt             |       | `en` / `nl` / `ru` |                    |
@@ -63,14 +64,14 @@ All translation models are stored in /data/translation_models/.
 For each model, we will have two saved models: encoder and decoder.
 Every saved `.pth` file have the following structure of the name:
 
-| parameter             | possible options   |
-| --------------------- | ------------------ |
-| model type            | rnn / tr           |
-| model part            | encoder / decoder  |
-| src language          | `en` / `nl` / `ru` |
-| tgt language          | `en` / `nl` / `ru` |
-| src vector model name |                    |
-| tgt vector model name |                    |
+| parameter             | possible options       |
+| --------------------- | ---------------------- |
+| model type            | `rnn` / `tr`           |
+| model part            | `encoder` / `decoder`  |
+| src language          | `en` / `nl` / `ru`     |
+| tgt language          | `en` / `nl` / `ru`     |
+| src vector model name |                        |
+| tgt vector model name |                        |
 
 Examples:
 - `rnn_encoder_en_nl_VM_ft_en_d100_sg_st_VM_v2w_nl_d100_cbow.pth`
@@ -98,10 +99,19 @@ This directory must have the following structure:
             - nl_train.txt
             - nl_test.txt
             - nl_val.txt
+        - /en_nl_filtered
+            - ...
         - /en_ru
             - ...
+        - /en_ru_filtered
+            - ...
 
+In order to download the data and filter it:
 
+- downloading without data for training vectors:
+    - `python3 download_script.py --skip_raw`
+- splitting the downloaded data in train/test/val:
+    - `python3 utilties/split_subtitles.py --filter`
 
 
 
