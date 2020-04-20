@@ -14,6 +14,7 @@ Example:
 | parameter         | short | possible options   | example            |
 | ----------------- | ----- | ------------------ | ------------------ |
 | --train           | -t    |                    |                    |
+| --unfiltered      | -u    |                    |                    |
 | --type            |       | `rnn` / `tr`       |                    |
 | --src             |       | `en` / `nl` / `ru` |                    |
 | --tgt             |       | `en` / `nl` / `ru` |                    |
@@ -98,10 +99,19 @@ This directory must have the following structure:
             - nl_train.txt
             - nl_test.txt
             - nl_val.txt
+        - /en_nl_filtered
+            - ...
         - /en_ru
             - ...
+        - /en_ru_filtered
+            - ...
 
+In order to download the data and filter it:
 
+- downloading without data for training vectors:
+    - `python3 download_script.py --skip_raw`
+- splitting the downloaded data in train/test/val:
+    - `python3 utilties/split_subtitles.py --filter`
 
 
 
