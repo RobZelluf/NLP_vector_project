@@ -35,7 +35,12 @@ def get_model_path(args):
 
 
 def set_sample_prob(args):
-    num_lines = get_num_lines(args.language)
+    _, lang_short = language_map(args.language)
+
+    filename = "OpenSubtitles.raw." + lang_short
+    file = "data/subtitle_data/raw/" + filename
+
+    num_lines = get_num_lines(file)
     print("Total number of lines:", num_lines)
     chunk_size = int(num_lines / args.chunks)
     if chunk_size > 5e6:
