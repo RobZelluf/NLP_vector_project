@@ -11,7 +11,7 @@ def split(lang, train=0.6, val=0.2, test=0.2):
     assert train + val + test == 1.0
 
     lang_full, lang_short = language_map(lang)
-    print("Splitting", lang_full)
+    print("Splitting", lang_full.capitalize())
     num_lines = get_num_lines(lang)
 
     lines = list(range(num_lines))
@@ -25,12 +25,10 @@ def split(lang, train=0.6, val=0.2, test=0.2):
     random.shuffle(lines)
     print("Done shuffling")
 
-    print("Making line variables")
     train_lines = [lines[i] for i in train_ind]
     val_lines = [lines[i] for i in val_ind]
     test_lines = [lines[i] for i in test_ind]
 
-    print("Sorting line variables")
     train_lines = sorted(train_lines, reverse=True)
     val_lines = sorted(val_lines, reverse=True)
     test_lines = sorted(test_lines, reverse=True)
@@ -57,10 +55,9 @@ def split(lang, train=0.6, val=0.2, test=0.2):
         next_val_line = val_lines.pop()
         next_test_line = test_lines.pop()
 
-        print("Start going over file")
         while line1 and line2:
             if (line_num + 1) % save_interval == 0:
-                print("Read", line_num + 1, "out of", num_lines, "lines.")
+                print(lang_full.capitalize() + "- Read", line_num + 1, "out of", num_lines, "lines.")
 
             if line_num == next_train_line:
                 train_lines1.append(line1)
@@ -114,14 +111,7 @@ def save_train_lines(set_type, lang_short, lines1, lines2):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--language", type=str)
-    args = parser.parse_args()
-
-    if not args.language:
-        print("No language specified!")
-        exit()
-
-    t = time()
-    split(args.language)
-    print('Splitting up everything took {} mins'.format(round((time() - t) / 60, 2)))
+    for lang in ["dutch", "russian"]:
+        t = time()
+        split(lang)
+        print('Splitting up everything took {} mins'.format(round((time() - t) / 60, 2)))
