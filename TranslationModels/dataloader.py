@@ -92,7 +92,6 @@ class tr_data_loader(object):
 		with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
 			lst = []
 			i = 0
-			print(self.max_batches)
 			for linesrc, linetgt in zip(file_src, file_tgt):
 				if random.random() > self.keep_chance:
 					continue
@@ -128,5 +127,5 @@ class tr_data_loader(object):
 				if i % self.batch_size == 0:
 					yield self.collateTransformer(lst) if self.isTransformer else self.collateRNN(lst)
 					lst = []
-					if self.max_batches is not None and i > self.max_batches:
+					if (self.max_batches is not None) and (i > self.max_batches):
 						break
