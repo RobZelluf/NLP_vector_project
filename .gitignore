@@ -134,3 +134,5 @@ dmypy.json
 /data/subtitle_data/
 /data/train_data/
 /data/translation_models/
+/kept.p
+/lengths.p
