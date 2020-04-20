@@ -41,7 +41,7 @@ def get_model(args, model_path):
     if os.path.exists(model_path) and args.continue_training:
         print("Continuing training existing model")
         if args.fasttext:
-            model = FastText(model_path)
+            model = FastText.load(model_path)
         else:
             model = Word2Vec.load(model_path)
     else:
