@@ -109,13 +109,8 @@ def load_subtitles(lang="nl", size=-1, start=None, end=None):
             return subs
 
 
-def get_num_lines(lang):
-    lang_full, lang_short = language_map(lang)
-
-    filename = "OpenSubtitles.raw." + lang_short
-
-    file = "data/subtitle_data/raw/" + filename
-    with open(file) as f:
+def get_num_lines(path):
+    with open(path) as f:
         line = f.readline()
         lines = 0
         while line:

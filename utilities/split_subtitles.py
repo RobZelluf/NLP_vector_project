@@ -16,7 +16,9 @@ def split(lang, train=0.6, val=0.2, test=0.2):
     if not os.path.exists("data/train_data/en_" + lang_short):
         os.mkdir("data/train_data/en_" + lang_short)
 
-    num_lines = get_num_lines(lang)
+    path = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + ".en"
+    num_lines = get_num_lines(path)
+    print("Number of lines", num_lines)
 
     lines = list(range(num_lines))
     train_ind = lines[:int(num_lines * train)]
