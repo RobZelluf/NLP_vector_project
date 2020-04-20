@@ -286,7 +286,7 @@ class TransformerModel():
 
                 if (i + 1) % 100 == 0:
                     dur = (int) (time.time() - start)
-                    print("{0:d} batches done in {2:d}m:{3:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
+                    print("{0:d} batches done in {1:d}m:{2:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
