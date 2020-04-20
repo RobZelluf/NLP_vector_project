@@ -113,7 +113,7 @@ In order to download the data and filter it:
 - downloading without data for training vectors:
     - `python3 download_script.py --skip_raw`
 - splitting the downloaded data in train/test/val:
-    - `python3 utilties/split_subtitles.py --filter`
+    - `python3 utilities/split_subtitles.py --filter`
 
 
 
