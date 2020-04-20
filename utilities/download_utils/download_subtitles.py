@@ -75,11 +75,13 @@ def download_all_subtitles(skip_translated=False, skip_raw=True):
     datasets = []
 
     if not skip_translated:
+        print("Downloading translated subtitles")
         with open("utilities/download_utils/subtitle_data.csv", "r") as f:
             new_datatsets = csv.reader(f)
             datasets.extend(list(new_datatsets))
 
     if not skip_raw:
+        print("Downloaded raw subtitles")
         with open("utilities/download_utils/raw_subtitle_data.csv") as f:
             more_datatsets = csv.reader(f)
             datasets.extend(list(more_datatsets))

@@ -2,7 +2,7 @@ from train_embeddings import train_model
 import argparse
 import logging
 import os
-from utilities.utils import language_map
+import random
 
 
 if __name__ == "__main__":
@@ -38,10 +38,13 @@ if __name__ == "__main__":
     if args.special_tokens:
         print("Adding tokens <SOS> and <EOS>")
 
+    languages = ["dutch", "english", "russian"]
+
     for superloop in range(args.superloops):
         print("Superloop", superloop)
+        random.shuffle(languages)
 
-        for lang in ["dutch", "english", "russian"]:
+        for lang in languages:
             for skip_gram in [True, False]:
                 args.skip_gram = skip_gram
                 args.epochs = int(max(5 - superloop, 1))

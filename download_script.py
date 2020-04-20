@@ -10,5 +10,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print("Downloading all subtitles")
     download_all_subtitles(args.skip_translations, args.skip_raw)
