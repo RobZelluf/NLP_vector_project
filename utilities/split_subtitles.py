@@ -14,6 +14,9 @@ def split(lang, train=0.6, val=0.2, test=0.2, filter_lines=False):
     lang_full, lang_short = language_map(lang)
     print("Splitting", lang_full.capitalize())
 
+    if not os.path.exists("data/train_data/"):
+        os.mkdir("data/train_data/")
+
     if not os.path.exists("data/train_data/en_" + lang_short):
         os.mkdir("data/train_data/en_" + lang_short)
 
