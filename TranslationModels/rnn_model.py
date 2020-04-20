@@ -133,7 +133,8 @@ class RNNModel():
 
         
         start = time.time()
-
+        loss = None
+        
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):
                 train_inputs, train_lengths, train_targets = batch
