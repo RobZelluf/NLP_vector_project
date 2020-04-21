@@ -200,7 +200,7 @@ class Decoder(nn.Module):
           * All intermediate signals should be of shape (max_seq_length, batch_size, n_features).
           * You need to create and use the subsequent mask in the decoder.
         """
-        tgt_mask = subsequent_mask(y.size(0))
+        tgt_mask = subsequent_mask(y.size(0)).to(src_mask.device)
         x = self.pos_encoding(self.embedding(y))
         for i in range(self.n_blocks):
             x = self.decoder_blocks[i](y=x, z=z, src_mask=src_mask, tgt_mask=tgt_mask)
@@ -261,7 +261,6 @@ class TransformerModel():
 
         for epoch in range(iters):
             for i, batch in enumerate(trainloader):
-                print("333333333333333333333333333333333333333333333333333")
                 src_seqs, src_mask, tgt_seqs = batch
 
                 src_seqs = src_seqs.to(device)
@@ -287,7 +286,7 @@ class TransformerModel():
 
                 if (i + 1) % 100 == 0:
                     dur = (int) (time.time() - start)
-                    print("{0:d} batches done in {2:d}m:{3:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
+                    print("{0:d} batches done in {1:d}m:{2:d}s".format(i + 1, dur // 60, dur % 60), end = '\r')
                     torch.save(self.encoder.state_dict(), self.encoder_save_path)
                     torch.save(self.decoder.state_dict(), self.decoder_save_path)
 
