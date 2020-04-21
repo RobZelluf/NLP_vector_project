@@ -62,7 +62,7 @@ class tr_data_loader(object):
 
 		max_src_seq_length = max([s.size(0) for s in src_samples])
 		src_out_dims = (max_src_seq_length, len(src_samples))
-		src_seqs = src_samples[0].data.new(*src_out_dims).fill_(self.src_eos_token_index)
+		src_seqs = src_samples[0].data.new(*src_out_dims).fill_(self.src_sos_token_index)
 		src_mask = torch.ones(*src_out_dims, dtype=torch.bool)
 		for i, src_tensor in enumerate(src_samples):
 			length = src_tensor.size(0)
@@ -71,7 +71,7 @@ class tr_data_loader(object):
 
 		max_tgt_seq_length = max([s.size(0) for s in tgt_samples])
 		tgt_out_dims = (1 + max_tgt_seq_length, len(tgt_samples))
-		tgt_seqs = tgt_samples[0].data.new(*tgt_out_dims).fill_(self.tgt_eos_token_index)
+		tgt_seqs = tgt_samples[0].data.new(*tgt_out_dims).fill_(self.tgt_sos_token_index)
 		for i, tgt_tensor in enumerate(tgt_samples):
 			length = tgt_tensor.size(0)
 			tgt_seqs[0, i] = self.tgt_sos_token_index

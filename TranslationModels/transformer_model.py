@@ -256,7 +256,7 @@ class TransformerModel():
         self.encoder.train()
         self.decoder.train()
 
-        tgt_padding_value = self.tgt_vm.vocab.get(EOS_token).index
+        tgt_padding_value = self.tgt_vm.vocab.get(SOS_token).index
         start = time.time()
 
         for epoch in range(iters):
