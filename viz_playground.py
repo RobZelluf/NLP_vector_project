@@ -14,7 +14,8 @@ en_words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airpla
 
 nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
             "een", "twee", "drie", "vier", "vijf", "zes",
-            "amsterdam", "london", "berlin", "rotterdam", "manchester"]
+            "amsterdam", "london", "berlin", "rotterdam", "manchester",
+            "nederland", "engeland", "duitsland"]
 
 ru_words = []
 
@@ -114,6 +115,6 @@ def get_subplot_for_data(lang="en"):
 
 
 print("Starting subplots")
-get_subplot_for_data()
+get_subplot_for_data("nl")
 
 
