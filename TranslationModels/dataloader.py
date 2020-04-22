@@ -14,6 +14,8 @@ from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 from gensim.models.callbacks import CallbackAny2Vec
 
+from TranslationModels.const_vars import *
+
 from utilities.utils import preprocess_line
 
 class tr_data_loader(object):
@@ -116,6 +118,12 @@ class tr_data_loader(object):
                         linetgt_index.append(self.tgt_unk_token_index)
                     else:
                         linetgt_index.append(vw_index.index)
+
+                if self.isTransformer:
+                    if len(linesrc_index) > MAX_LENGTH:
+                        continue
+                    if len(linetgt_index) > MAX_LENGTH:
+                        continue
 
                 linesrc_index = torch.tensor(linesrc_index).long()
                 linetgt_index = torch.tensor(linetgt_index).long()

@@ -3,12 +3,13 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import time
+from torchtext.data.metrics import bleu_score
 
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 
 import TranslationModels.tr_model_utils as tr
-from TranslationModels.dataloader import tr_data_loader
+from TranslationModels.dataloader import tr_data_loader, test_data_loader
 from TranslationModels.const_vars import *
 
 
@@ -348,12 +349,15 @@ class TransformerModel():
             next_word = decoded_words[-1].unsqueeze(1)
             tgt_seq = torch.cat([tgt_seq, next_word], dim=0)
 
+            if next_word==self.tgt_vm.vocab.get(EOS_token).index:
+                break
+
         if str_out:
           tgt_seq = tr.convert_tgt_index_seq_to_str(tgt_seq, self.tgt_vm)
 
         return tgt_seq
 
-    def eval(self, filesrc, filetgt, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
+    def eval(self, filesrc, filetgt, batch_size=64, max_batches=None, device="cpu", keep_chance=0.9):
         if self.encoder is None or self.decoder is None:
             print('Model not loaded!')
             return
@@ -382,7 +386,7 @@ class TransformerModel():
             cur_score = bleu_score(batch_candidate, batch_references)
             score += cur_score
             i += 1
-            print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
+            print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score), end="\r")
         score /= i
 
         return score

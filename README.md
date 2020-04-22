@@ -29,10 +29,6 @@ Example:
 | --gpu             | -g    |                  |                    |                    |
 | --target          |       | I want a dog     |                    |                    |
 
-#### Evaluation
-
-TODO
-
 ## Naming convention for the vector models:
 
 All vector models are stored in /data/vector_models/.

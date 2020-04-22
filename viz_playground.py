@@ -9,7 +9,7 @@ import numpy as np
 
 en_words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
             "one", "two", "three", "four", "five", "six",
-            "amsterdam", "london", "berlin", "rotterdam", "amsterdam",
+            "amsterdam", "london", "berlin", "rotterdam", "manchester",
             "netherlands", "germany", "england"]
 
 nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
@@ -17,7 +17,10 @@ nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "
             "amsterdam", "london", "berlin", "rotterdam", "manchester",
             "nederland", "engeland", "duitsland"]
 
-ru_words = []
+ru_words = ["обезьяна", "собака", "кошка", "корова", "машина", "велосипед", "такси", "самолет", "поезд",
+            "один", "два", "три", "четыре", "пять", "шесть",
+            "амстердам", "лондон", "берлин", "роттердам", "манчестер",
+            "нидерланды", "германия", "англия"]
 
 all_words = {"nl": nl_words, "en": en_words, "ru": ru_words}
 
