@@ -221,11 +221,13 @@ class TransformerModel():
         self.encoder_save_path = encoder_save_path
         self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
+        print("TEST 1111111111111111111111111111111111111111111111111")
         try:
-          self.load(self.encoder_save_path, self.decoder_save_path)
-          print('++ Model loaded!')
+            print("TEST 1111111111111111111111111111111111111111111111111")
+            self.load(self.encoder_save_path, self.decoder_save_path)
+            print('++ Model loaded!')
         except:
-          pass
+            pass
 
     def train(self, filesrc, filetgt, batch_size=64, iters=2, max_batches=None, device="cpu", keep_chance = 0.9):
         if self.encoder is None:
