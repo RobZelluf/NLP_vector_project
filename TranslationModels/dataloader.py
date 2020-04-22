@@ -193,7 +193,7 @@ class test_data_loader(object):
 
                 i += 1
                 if i % self.batch_size == 0:
-                	output_file.writelines(printlst)
+                    output_file.writelines(printlst)
                     yield lst_candidate, lst_references
                     lst_candidate = []
                     lst_references = []
