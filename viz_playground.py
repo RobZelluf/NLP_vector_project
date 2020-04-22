@@ -2,10 +2,23 @@ from matplotlib import pyplot as plt
 from sklearn.decomposition import PCA
 
 from utilities.utils import language_map
-from gensim.models import Word2Vec, KeyedVectors
+from gensim.models import KeyedVectors
 from gensim.models.keyedvectors import FastTextKeyedVectors
-from gensim.models import FastText
 import os
+import numpy as np
+
+en_words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
+            "one", "two", "three", "four", "five", "six",
+            "amsterdam", "london", "berlin", "rotterdam", "amsterdam",
+            "netherlands", "germany", "england"]
+
+nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
+            "een", "twee", "drie", "vier", "vijf", "zes",
+            "amsterdam", "london", "berlin", "rotterdam", "manchester"]
+
+ru_words = []
+
+all_words = {"nl": nl_words, "en": en_words, "ru": ru_words}
 
 
 def get_model_name():
@@ -24,10 +37,7 @@ def get_model_name():
 
 
 def visualize_words(wv, words):
-    X = wv[wv.vocab]
-
     pca = PCA(n_components=2)
-    pca.fit(X)
 
     X = wv[words]
     result = pca.fit_transform(X)
@@ -52,19 +62,58 @@ def visualize_language():
 
     words = [""]
     if "en" in model_name:
-        words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
-                 "one", "two", "three", "four", "five", "six",
-                 "amsterdam", "london", "berlin", "rotterdam", "amsterdam",
-                 "netherlands", "germany", "england"]
+        words = en_words
 
     if "nl" in model_name:
-        words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
-                 "een", "twee", "drie", "vier", "vijf", "zes", ".", "<SOS>", "<EOS>",
-                 "amsterdam", "london", "berlin", "rotterdam", "manchester"]
+        words = nl_words
 
     visualize_words(wv, words)
 
 
-visualize_language()
+def get_subplot_for_data(lang="en"):
+    lang_full, lang_short = language_map(lang)
+    fig = plt.figure()
+
+    plot_labels = {"w2v": "Word2Vec", "ft": "FastText",
+                   "cbow": "CBOW", "sg": "Skip-Gram"}
+
+    for i, type in enumerate(["w2v", "ft"]):
+        for j, hp in enumerate(["cbow", "sg"]):
+            print(type, hp)
+
+            # First word2vec
+            model_name = type + "_" + lang + "_d100_" + hp + "_st.bin"
+            path = "data/vector_models/" + model_name
+
+            if type == "ft":
+                wv = FastTextKeyedVectors.load(path)
+            else:
+                wv = KeyedVectors.load_word2vec_format(path, binary=True)
+
+            words = all_words[lang]
+            pca = PCA(n_components=2)
+
+            # pca.fit(wv[wv.vocab])
+
+            X = wv[words]
+            X -= np.mean(X, axis=0)
+            X /= np.var(X, axis=0)
+            result = pca.fit_transform(X)
+
+            # Start subplot
+            subplot_num = i * 2 + (j + 1)
+            axis = fig.add_subplot(2, 2, subplot_num)
+
+            axis.scatter(result[:, 0], result[:, 1])
+            for k, word in enumerate(words):
+                axis.annotate(word, xy=(result[k, 0], result[k, 1]), size=7)
+
+            axis.title.set_text(lang_full.capitalize() + " - " + plot_labels[type] + " using " + plot_labels[hp])
+
+    plt.show()
+
+
+print("Starting subplots")
+get_subplot_for_data()
 
 
