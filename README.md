@@ -14,6 +14,7 @@ Example:
 | parameter         | short | default          | possible options   | example            |
 | ----------------- | ----- | ---------------- | ------------------ | ------------------ |
 | --train           | -t    |                  |                    |                    |
+| --eval            | -e    |                  |                    |                    |
 | --unfiltered      | -u    |                  |                    |                    |
 | --keep_chance     | -k    | 0.9              | 0-1                |                    |
 | --type            |       | `tr`             | `rnn` / `tr`       |                    |

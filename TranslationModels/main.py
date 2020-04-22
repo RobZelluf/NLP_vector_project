@@ -32,13 +32,39 @@ def extendPretrainedModel(model):
         model.add(UNK_token, np.random.normal(0, 0.01, length))
     return model
 
+def read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin):
+    if not all([os.path.isfile(fname) for fname in [path_src_vw_model_bin, path_tgt_vw_model_bin]]):
+        print('Some of the vector model files given do not exist, perhaps check defaults!')
+        sys.exit()
+
+    print('+ preparing src vector model')
+    if "ft" in path_src_vw_model_bin:
+        vw_src_model = FastTextKeyedVectors.load(path_src_vw_model_bin)
+    else:
+        vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
+    print('++ src vector model read')
+    vw_src_model = extendPretrainedModel(vw_src_model)
+    print('++ src vector model extended')
+
+    print('+ preparing tgt vector model')
+    if "ft" in path_tgt_vw_model_bin:
+        vw_tgt_model = FastTextKeyedVectors.load(path_tgt_vw_model_bin)
+    else:
+        vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
+    print('++ tgt vector model read')
+    vw_tgt_model = extendPretrainedModel(vw_tgt_model)
+    print('++ tgt vector model extended')
+
+    return vw_src_model, vw_tgt_model
+
+
 if __name__=='__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--train', '-t', action = 'store_true', help='Should training be performed.')
+    parser.add_argument('--eval', '-e', action = 'store_true', help='Should evaluation be performed.')
     parser.add_argument('--type', type = str, choices = ['rnn', 'tr'], help='Type of translation model.', default = 'tr')
 
-    #parser.add_argument('--extend', '-e', action = 'store_true', help='Should the word vector space be extended with SOS, EOS and UNK tokens.')
     parser.add_argument('--src', choices = ['en', 'nl', 'ru'], help='Source language for translation.', default = 'en')
     parser.add_argument('--tgt', choices = ['en', 'nl', 'ru'], help='Target language for translation.', default = 'nl')
 
@@ -62,35 +88,10 @@ if __name__=='__main__':
         print('Source and target language identical!')
         sys.exit()
 
-
-    path_src_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_train.txt' 
-    path_tgt_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_train.txt' 
-
     path_src_vw_model_bin = './../data/vector_models/' + args.source_vm + '.bin'
     path_tgt_vw_model_bin = './../data/vector_models/' + args.target_vm + '.bin'
 
-
-    if not all([os.path.isfile(fname) for fname in [path_src_train_file, path_tgt_train_file, path_src_vw_model_bin, path_tgt_vw_model_bin]]):
-        print('Some of the files given do not exist, perhaps check defaults!')
-        sys.exit()
-
-    print('+ preparing src vector model')
-    if "ft" in args.source_vm:
-        vw_src_model = FastTextKeyedVectors.load(path_src_vw_model_bin)
-    else:
-        vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
-    print('++ src vector model read')
-    vw_src_model = extendPretrainedModel(vw_src_model)
-    print('++ src vector model extended')
-
-    print('+ preparing tgt vector model')
-    if "ft" in args.target_vm:
-        vw_tgt_model = FastTextKeyedVectors.load(path_tgt_vw_model_bin)
-    else:
-        vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
-    print('++ tgt vector model read')
-    vw_tgt_model = extendPretrainedModel(vw_tgt_model)
-    print('++ tgt vector model extended')
+    vw_src_model, vw_tgt_model = read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin)
 
     translation_models_path = './../data/translation_models/'
     if not os.path.exists(translation_models_path):
@@ -115,6 +116,14 @@ if __name__=='__main__':
              hidden_size=args.hidden_size)
 
     if args.train:
+
+        path_src_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_train.txt' 
+        path_tgt_train_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_train.txt' 
+        
+        if not all([os.path.isfile(fname) for fname in [path_src_train_file, path_tgt_train_file]]):
+            print('Some of the train files given do not exist, perhaps check defaults!')
+            sys.exit()
+
         print('+ start TrNN training')
         translation_model.train(
              path_src_train_file,
@@ -123,29 +132,32 @@ if __name__=='__main__':
              iters=args.iters,
              max_batches = args.max_batches,
              device = 'cuda:0' if args.gpu else 'cpu',
-             keep_chance=args.keep_chance,
+             keep_chance=args.keep_chance
              )
-             
 
-    '''print('+ Loading model')
-                try:
-                    if args.type == 'rnn':
-                        translation_model.load(
-                           encoder_path=enc_path,
-                           decoder_path=dec_path)
-                    else:
-                        translation_model.load(
-                           encoder_path=enc_path,
-                           decoder_path=dec_path)
-                except Exception as e:
-                    print(e)
-                else:
-                    print('++ loaded')'''
+    if args.eval:
+        path_src_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_test.txt' 
+        path_tgt_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_test.txt' 
+
+        if not all([os.path.isfile(fname) for fname in [path_src_test_file, path_tgt_test_file]]):
+            print('Some of the test files given do not exist, perhaps check defaults!')
+            sys.exit()
+
+        print('+ start evaluation')
+        score = translation_model.eval(
+             path_src_test_file,
+             path_tgt_test_file,
+             batch_size=args.batch_size,
+             max_batches = args.max_batches,
+             keep_chance=args.keep_chance,
+             device = 'cuda:0' if args.gpu else 'cpu',
+             )
+        print('+ Evaluation done, BLEU score is: {0:0.4f}'.format(score))
 
     print()
     tr_input = args.target # 'I want a dog.'
     tr_res = translation_model.translate(tr_input, True)
-    print('+ Translation:')
+    print('+ Example translation:')
     print('++ Input:', tr_input)
     print('++ Output:', tr_res)
 
