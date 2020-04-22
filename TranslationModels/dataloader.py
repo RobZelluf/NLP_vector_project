@@ -143,7 +143,7 @@ class tr_data_loader(object):
 
 class test_data_loader(object):
     def __init__(self, filesrc, filetgt, model, batch_size,
-                 remove_punctuation=False, max_batches=None, keep_chance=0.1):
+                 remove_punctuation=False, max_batches=None, keep_chance=0.1, device = 'cpu'):
         self.filesrc = filesrc
         self.filetgt = filetgt
         self.model = model
@@ -153,6 +153,7 @@ class test_data_loader(object):
 
         self.max_batches = max_batches
         self.keep_chance = keep_chance
+        self.device = device
 
     def __iter__(self):
         with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
@@ -162,17 +163,17 @@ class test_data_loader(object):
             for linesrc, linetgt in zip(file_src, file_tgt):
                 if random.random() > self.keep_chance:
                     continue
-                linesrc = ' '.join(self.model.translate(linesrc, True))
+                linesrc = self.model.translate(linesrc, str_out=True, device=self.device)
                 linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
                 linetgt = [*linetgt, '<EOS>']
 
                 lst_candidate.append(linesrc)
-                lst_references.append(linetgt)
+                lst_references.append([linetgt])
 
                 i += 1
                 if i % self.batch_size == 0:
                     yield lst_candidate, lst_references
                     lst_candidate = []
                     lst_references = []
-                    if (self.max_batches is not None) and (i > self.max_batches):
+                    if (self.max_batches is not None) and (i >= self.max_batches):
                         break

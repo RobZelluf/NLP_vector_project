@@ -353,5 +353,37 @@ class TransformerModel():
 
         return tgt_seq
 
+    def eval(self, filesrc, filetgt, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
+        if self.encoder is None or self.decoder is None:
+            print('Model not loaded!')
+            return
 
+        self.encoder.to(device)
+        self.decoder.to(device)
+
+        testloader = test_data_loader(
+            filesrc=filesrc,
+            filetgt=filetgt,
+            model = self,
+            batch_size=batch_size,
+            max_batches=max_batches,
+            keep_chance = keep_chance,
+            device = device
+        )
+
+        self.encoder.eval()
+        self.decoder.eval()
+
+        start = time.time()
+        
+        score = 0
+        i = 0
+        for batch_candidate, batch_references in testloader:
+            cur_score = bleu_score(batch_candidate, batch_references)
+            score += cur_score
+            i += 1
+            print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
+        score /= i
+
+        return score
 
