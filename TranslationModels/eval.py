@@ -7,7 +7,6 @@ from gensim.models import KeyedVectors
 from gensim.models.keyedvectors import FastTextKeyedVectors
 
 import sys
-sys.path.append('./../')
 sys.path.append(os.path.abspath(os.path.normpath(os.path.join(__file__, "./../../"))))
 import argparse
 
