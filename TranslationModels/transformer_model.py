@@ -221,9 +221,7 @@ class TransformerModel():
         self.encoder_save_path = encoder_save_path
         self.decoder_save_path = decoder_save_path
         self.hidden_size = hidden_size
-        print("TEST 1111111111111111111111111111111111111111111111111")
         try:
-            print("TEST 1111111111111111111111111111111111111111111111111")
             self.load(self.encoder_save_path, self.decoder_save_path)
             print('++ Model loaded!')
         except Exception as e:

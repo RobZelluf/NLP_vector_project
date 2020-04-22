@@ -110,8 +110,6 @@ class RNNModel():
         self.encoder.to(device)
         self.decoder.to(device)
 
-        parameters = list(self.encoder.parameters()) + list(self.decoder.parameters())
-        #optimizer = torch.optim.Adam(parameters, lr=0, betas=(0.9, 0.98), eps=1e-9)
         optimizerEnc = torch.optim.Adam(self.encoder.parameters())
         optimizerDec = torch.optim.Adam(self.decoder.parameters())
 
