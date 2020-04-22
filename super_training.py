@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--fasttext", action='store_true')
     parser.add_argument("--cores", type=int, default=6)
     parser.add_argument("--superloops", type=int, default=100)
+    parser.add_argument("--skipgram", action='store_true')
     args = parser.parse_args()
 
     args.loops = 1
@@ -51,4 +52,6 @@ if __name__ == "__main__":
                 args.loops = 3
             else:
                 args.loops = 1
+
             print("Language", args.language)
+            train_model(args)
