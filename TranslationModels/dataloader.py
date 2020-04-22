@@ -150,10 +150,11 @@ class tr_data_loader(object):
 
 
 class test_data_loader(object):
-    def __init__(self, filesrc, filetgt, model, batch_size,
+    def __init__(self, filesrc, filetgt, output_file, model, batch_size,
                  remove_punctuation=False, max_batches=None, keep_chance=0.1, device = 'cpu'):
         self.filesrc = filesrc
         self.filetgt = filetgt
+        self.output_file =  output_file
         self.model = model
 
         self.batch_size = batch_size
@@ -163,10 +164,12 @@ class test_data_loader(object):
         self.keep_chance = keep_chance
         self.device = device
 
+
     def __iter__(self):
         with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
             lst_candidate = []
             lst_references = []
+            printlst = []
             i = 0
             for linesrc, linetgt in zip(file_src, file_tgt):
                 if random.random() > self.keep_chance:
@@ -177,9 +180,20 @@ class test_data_loader(object):
 
                 lst_candidate.append(linesrc)
                 lst_references.append([linetgt])
+                printlst.append('-' * 30)
+                printlst.append('\n')
+                printlst.append('>' * 30)
+                printlst.append(' '.join(linesrc))
+                printlst.append('\n')
+                printlst.append('<' * 30)
+                printlst.append(' '.join(linetgt))
+                printlst.append('\n')
+                printlst.append('\n')
+
 
                 i += 1
                 if i % self.batch_size == 0:
+                	output_file.writelines(printlst)
                     yield lst_candidate, lst_references
                     lst_candidate = []
                     lst_references = []

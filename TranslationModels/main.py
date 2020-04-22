@@ -137,7 +137,11 @@ if __name__=='__main__':
 
     if args.eval:
         path_src_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_test.txt' 
-        path_tgt_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_test.txt' 
+        path_tgt_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_test.txt'
+
+        eval_file = './../data/eval_results/' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.txt'
+        if not os.path.exists("data/eval_results/"):
+            os.mkdir("data/eval_results/")
 
         if not all([os.path.isfile(fname) for fname in [path_src_test_file, path_tgt_test_file]]):
             print('Some of the test files given do not exist, perhaps check defaults!')
@@ -147,6 +151,7 @@ if __name__=='__main__':
         score = translation_model.eval(
              path_src_test_file,
              path_tgt_test_file,
+             eval_file,
              batch_size=args.batch_size,
              max_batches = args.max_batches,
              keep_chance=args.keep_chance,
