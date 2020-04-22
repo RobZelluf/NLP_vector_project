@@ -1,11 +1,46 @@
-from utilities.utils import visualize_embeddings, language_map
+from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+
+from utilities.utils import language_map
 from gensim.models import Word2Vec, KeyedVectors
 from gensim.models.keyedvectors import FastTextKeyedVectors
 from gensim.models import FastText
 import os
 
 
-def visualize_language(model_name):
+def get_model_name():
+    dirs = os.listdir("data/vector_models")
+    dirs.sort()
+    for i, model_name in enumerate(dirs):
+        print(i, "\t", model_name)
+
+    ind = int(input("Model:"))
+    if ind < len(dirs):
+        model_name = dirs[ind]
+        return model_name
+    else:
+        print("Index not valid!")
+        return get_model_name()
+
+
+def visualize_words(wv, words):
+    X = wv[wv.vocab]
+
+    pca = PCA(n_components=2)
+    pca.fit(X)
+
+    X = wv[words]
+    result = pca.fit_transform(X)
+
+    plt.scatter(result[:, 0], result[:, 1])
+    for i, word in enumerate(words):
+        plt.annotate(word, xy=(result[i, 0], result[i, 1]))
+
+    plt.show()
+
+
+def visualize_language():
+    model_name = get_model_name()
     path = "data/vector_models/" + model_name
 
     if "ft" in model_name:
@@ -27,20 +62,9 @@ def visualize_language(model_name):
                  "een", "twee", "drie", "vier", "vijf", "zes", ".", "<SOS>", "<EOS>",
                  "amsterdam", "london", "berlin", "rotterdam", "manchester"]
 
-    if "ft" in model_name:
-        words.extend(["skjafk", "fjhfkja", "fhsdhlf"])
-
-    visualize_embeddings(wv, words)
-    print(len(wv.vocab))
-    dir(wv)
+    visualize_words(wv, words)
 
 
-dirs = os.listdir("data/vector_models")
-for i, model_name in enumerate(dirs):
-    print(i, model_name)
+visualize_language()
 
-ind = int(input("Model:"))
-model_name = dirs[ind]
-print(model_name)
 
-visualize_language(model_name)

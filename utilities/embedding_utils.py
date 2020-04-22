@@ -34,6 +34,7 @@ def save_keyed_vectors(model_path, model_name):
 
 def bin_all():
     DIR = "trained_models/"
+
     for lang in os.listdir(DIR):
         for file in os.listdir(DIR + lang):
             ext = os.path.splitext(file)

@@ -1,6 +1,4 @@
 from gensim.parsing.preprocessing import preprocess_string, strip_tags, strip_multiple_whitespaces, strip_punctuation
-from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
 from nltk.tokenize import WordPunctTokenizer
 import random
 
@@ -10,22 +8,6 @@ def add_special_tokens(lines):
         line.insert(0, "<SOS>")
         line.append("<EOS>")
         lines[i] = line
-
-
-def visualize_embeddings(wv, words):
-    X = wv[wv.vocab]
-
-    pca = PCA(n_components=2)
-    pca.fit(X)
-
-    X = wv[words]
-    result = pca.transform(X)
-
-    plt.scatter(result[:, 0], result[:, 1])
-    for i, word in enumerate(words):
-        plt.annotate(word, xy=(result[i, 0], result[i, 1]))
-
-    plt.show()
 
 
 def preprocess(lines, remove_punctuation=True):

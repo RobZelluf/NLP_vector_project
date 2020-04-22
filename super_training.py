@@ -49,5 +49,4 @@ if __name__ == "__main__":
                 args.skip_gram = skip_gram
                 args.epochs = int(max(5 - superloop, 1))
                 args.language = lang
-
-                train_model(args)
+                print("Language", args.language)
