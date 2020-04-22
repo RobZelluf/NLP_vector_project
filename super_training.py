@@ -45,8 +45,10 @@ if __name__ == "__main__":
         random.shuffle(languages)
 
         for lang in languages:
-            for skip_gram in [True, False]:
-                args.skip_gram = skip_gram
-                args.epochs = int(max(5 - superloop, 1))
-                args.language = lang
-                print("Language", args.language)
+            args.epochs = int(max(5 - superloop, 1))
+            args.language = lang
+            if args.language != "english":
+                args.loops = 3
+            else:
+                args.loops = 1
+            print("Language", args.language)

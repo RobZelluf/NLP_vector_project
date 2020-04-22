@@ -19,8 +19,8 @@ nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "
 
 ru_words = ["обезьяна", "собака", "кошка", "корова", "машина", "велосипед", "такси", "самолет", "поезд",
             "один", "два", "три", "четыре", "пять", "шесть",
-            "амстердам", "лондон", "берлин", "роттердам", "манчестер",
-            "нидерланды", "германия", "англия"]
+            "амстердам", "лондон", "берлин", "манчестер",
+            "германия", "англия"]
 
 all_words = {"nl": nl_words, "en": en_words, "ru": ru_words}
 
@@ -118,6 +118,6 @@ def get_subplot_for_data(lang="en"):
 
 
 print("Starting subplots")
-get_subplot_for_data("nl")
+get_subplot_for_data("ru")
 
 
