@@ -2,12 +2,13 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from torchtext.data.metrics import bleu_score
 
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 
 import TranslationModels.tr_model_utils as tr
-from TranslationModels.dataloader import tr_data_loader
+from TranslationModels.dataloader import tr_data_loader, test_data_loader
 from TranslationModels.const_vars import *
 
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
@@ -132,7 +133,6 @@ class RNNModel():
         self.encoder.train()
         self.decoder.train()
 
-        
         start = time.time()
         loss = None
 
@@ -228,4 +228,34 @@ class RNNModel():
         return output
 
 
+    def eval(self, filesrc, filetgt, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
+        if self.encoder is None or self.decoder is None:
+            print('Model not loaded!')
+            return
 
+        self.encoder.to(device)
+        self.decoder.to(device)
+
+        testloader = test_data_loader(
+            filesrc=filesrc,
+            filetgt=filetgt,
+            model = self,
+            batch_size=batch_size,
+            max_batches=max_batches,
+            keep_chance = keep_chance
+        )
+
+        self.encoder.eval()
+        self.decoder.eval()
+
+        start = time.time()
+        
+        score = 0
+        i = 0
+        for batch_candidate, batch_references in testloader:
+            print(batch)
+            score += bleu_score(batch_candidate, batch_references)
+            i += 1
+        score /= i
+
+        return score
