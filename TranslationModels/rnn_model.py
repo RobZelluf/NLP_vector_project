@@ -93,8 +93,9 @@ class RNNModel():
         try:
             self.load(self.encoder_save_path, self.decoder_save_path)
             print('++ Model loaded!')
-        except:
-            pass
+        except Exception as e:
+        	print(e)
+            print()
 
     def train(self, filesrc, filetgt, batch_size=64, iters=2, teacher_forcing_ratio=0.5, max_batches=None, device="cpu", keep_chance = 0.9):
 
