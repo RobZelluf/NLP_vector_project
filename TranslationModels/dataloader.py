@@ -174,26 +174,35 @@ class test_data_loader(object):
             for linesrc, linetgt in zip(file_src, file_tgt):
                 if random.random() > self.keep_chance:
                     continue
-                linesrc = self.model.translate(linesrc, str_out=True, device=self.device)
+                linetrans = self.model.translate(linesrc, str_out=True, device=self.device)
                 linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
                 linetgt = [*linetgt, '<EOS>']
 
-                lst_candidate.append(linesrc)
+                lst_candidate.append(linetrans)
                 lst_references.append([linetgt])
                 printlst.append('-' * 30)
                 printlst.append('\n')
-                printlst.append('>' * 30)
-                printlst.append(' '.join(linesrc))
+                printlst.append('>' * 20 + '\tInput')
                 printlst.append('\n')
-                printlst.append('<' * 30)
+                printlst.append(linesrc)
+                printlst.append('\n')
+                printlst.append('<' * 20 + '\tCandidate translation')
+                printlst.append('\n')
+                printlst.append(' '.join(linetrans))
+                printlst.append('\n')
+                printlst.append('+' * 20 + '\tReference translation')
+                printlst.append('\n')
                 printlst.append(' '.join(linetgt))
                 printlst.append('\n')
                 printlst.append('\n')
+                printlst.append('\n')
+                printlst.append('\n')
+                
 
 
                 i += 1
                 if i % self.batch_size == 0:
-                    output_file.writelines(printlst)
+                    self.output_file.writelines(printlst)
                     yield lst_candidate, lst_references
                     lst_candidate = []
                     lst_references = []

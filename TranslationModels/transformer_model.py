@@ -299,7 +299,7 @@ class TransformerModel():
             end = time.time()
             dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
+            print("Epoch {0:d}: Loss:{1:0.3f}             {2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
@@ -358,7 +358,7 @@ class TransformerModel():
 
         return tgt_seq
 
-    def eval(self, filesrc, filetgt, output_file, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
+    def eval(self, filesrc, filetgt, output_file_name, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
         if self.encoder is None or self.decoder is None:
             print('Model not loaded!')
             return
@@ -366,30 +366,44 @@ class TransformerModel():
         self.encoder.to(device)
         self.decoder.to(device)
 
-        testloader = test_data_loader(
-            filesrc=filesrc,
-            filetgt=filetgt,
-            output_file=output_file,
-            model = self,
-            batch_size=batch_size,
-            max_batches=max_batches,
-            keep_chance = keep_chance,
-            device = device
-        )
+        with open(output_file_name, 'w') as output_file:
+            testloader = test_data_loader(
+                filesrc=filesrc,
+                filetgt=filetgt,
+                output_file=output_file,
+                model = self,
+                batch_size=batch_size,
+                max_batches=max_batches,
+                keep_chance = keep_chance,
+                device = device
+            )
 
-        self.encoder.eval()
-        self.decoder.eval()
+            self.encoder.eval()
+            self.decoder.eval()
 
-        start = time.time()
-        
-        score = 0
-        i = 0
-        for batch_candidate, batch_references in testloader:
-            cur_score = bleu_score(batch_candidate, batch_references)
-            score += cur_score
-            i += 1
-            print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
-        score /= i
+            start = time.time()
+            
+            score = 0
+            i = 0
+            for batch_candidate, batch_references in testloader:
+                cur_score = bleu_score(batch_candidate, batch_references)
+                score += cur_score
+                i += 1
+                print('', file = output_file)
+                print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
+                print('=' * 30, file = output_file)
+                print('', file = output_file)
+                print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score), file = output_file)
+                print('', file = output_file)
+                print('=' * 30, file = output_file)
+                print('', file = output_file)
+
+            score /= i
+            print('=' * 50, file = output_file)
+            print('', file = output_file)
+            print('= ' * 25, file = output_file)
+            print('', file = output_file)
+            print('Final BLEU score: {0:0.4f}'.format(score), file = output_file)
 
         return score
 
