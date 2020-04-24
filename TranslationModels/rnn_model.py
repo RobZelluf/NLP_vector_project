@@ -252,26 +252,25 @@ class RNNModel():
 
             start = time.time()
             
-            score = 0
+            scores = []
             i = 0
             for batch_candidate, batch_references in testloader:
                 cur_score = bleu_score(batch_candidate, batch_references)
-                score += cur_score
+                scores.append(cur_score)
                 i += 1
                 print('', file = output_file)
-                print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
-                print('=' * 30, file = output_file)
+                print('Sample {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
                 print('', file = output_file)
-                print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score), file = output_file)
+                print('Sample {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score), file = output_file)
                 print('', file = output_file)
                 print('=' * 30, file = output_file)
                 print('', file = output_file)
 
-            score /= i
             print('=' * 50, file = output_file)
             print('', file = output_file)
             print('= ' * 25, file = output_file)
             print('', file = output_file)
-            print('Final BLEU score: {0:0.4f}'.format(score), file = output_file)
+            print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)), file = output_file)
+            print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)))
 
-        return score
+        return scores

@@ -16,6 +16,7 @@ from TranslationModels.rnn_model import RNNModel
 from TranslationModels.dataloader import tr_data_loader
 from TranslationModels.transformer_model import TransformerModel
 
+import matplotlib.pyplot as plt
 
 def extendPretrainedModel(model):
     length = model.vector_size
@@ -148,17 +149,22 @@ if __name__=='__main__':
             print('Some of the test files given do not exist, perhaps check defaults!')
             sys.exit()
 
+        if args.max_batches > 5000:
+            args.max_batches = 5000
+
         print('+ start evaluation')
-        score = translation_model.eval(
+        scores = translation_model.eval(
              path_src_test_file,
              path_tgt_test_file,
              eval_file,
-             batch_size=args.batch_size,
+             batch_size=1,
              max_batches = args.max_batches,
              keep_chance=args.keep_chance,
              device = 'cuda:0' if args.gpu else 'cpu',
              )
-        print('+ Evaluation done, BLEU score is: {0:0.4f}'.format(score))
+        plt.hist(scores)
+        plt.savefig(eval_file[:-3] + 'png')
+        print('+ Evaluation done')
 
     print()
     tr_input = args.target # 'I want a dog.'

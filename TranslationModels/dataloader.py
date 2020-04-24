@@ -194,11 +194,6 @@ class test_data_loader(object):
                 printlst.append('\n')
                 printlst.append(' '.join(linetgt))
                 printlst.append('\n')
-                printlst.append('\n')
-                printlst.append('\n')
-                printlst.append('\n')
-                
-
 
                 i += 1
                 if i % self.batch_size == 0:
