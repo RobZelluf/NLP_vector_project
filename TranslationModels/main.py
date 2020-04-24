@@ -42,6 +42,7 @@ def read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin):
     print('+ preparing src vector model')
     if "ft" in path_src_vw_model_bin:
         vw_src_model = FastTextKeyedVectors.load(path_src_vw_model_bin)
+        vw_src_model.add(UNK_token, np.random.normal(0, 0.01, vw_src_model.vector_size))
     else:
         vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
     print('++ src vector model read')
@@ -51,6 +52,7 @@ def read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin):
     print('+ preparing tgt vector model')
     if "ft" in path_tgt_vw_model_bin:
         vw_tgt_model = FastTextKeyedVectors.load(path_tgt_vw_model_bin)
+        vw_tgt_model.add(UNK_token, np.random.normal(0, 0.01, vw_tgt_model.vector_size))
     else:
         vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
     print('++ tgt vector model read')
@@ -78,7 +80,7 @@ if __name__=='__main__':
     parser.add_argument('--keep_chance', '-k', type = float, help='', default = 0.9)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
-    parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
+    parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 5)
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
     parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 

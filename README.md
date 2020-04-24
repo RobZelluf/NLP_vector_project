@@ -25,7 +25,7 @@ Example:
 | --hidden_size     |       | 256              |                    |                    |
 | --max_batches     | -m    | None (all)       |                    |                    |
 | --batch_size      | -b    | 4                |                    |                    |
-| --iters           | -i    | 30               |                    |                    |
+| --iters           | -i    | 5                |                    |                    |
 | --gpu             | -g    |                  |                    |                    |
 | --target          |       | I want a dog     |                    |                    |
 
