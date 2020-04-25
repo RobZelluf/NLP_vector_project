@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from torchtext.data.metrics import bleu_score
+#from torchtext.data.metrics import bleu_score
 
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
@@ -16,6 +16,8 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 import random
 import numpy as np
 import time
+from nltk.translate import bleu
+from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
 class Encoder(nn.Module):
     def __init__(self, embedding_vectors, hidden_size):
@@ -255,7 +257,7 @@ class RNNModel():
             scores = []
             i = 0
             for batch_candidate, batch_references in testloader:
-                cur_score = bleu_score(batch_candidate, batch_references)
+                cur_score = sentence_bleu(batch_references, batch_candidate, smoothing_function = SmoothingFunction().method4)
                 scores.append(cur_score)
                 i += 1
                 print('', file = output_file)

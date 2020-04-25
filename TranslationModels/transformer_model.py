@@ -12,6 +12,8 @@ import TranslationModels.tr_model_utils as tr
 from TranslationModels.dataloader import tr_data_loader, test_data_loader
 from TranslationModels.const_vars import *
 
+from nltk.translate import bleu
+from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
 def subsequent_mask(sz):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1).float()
@@ -386,7 +388,7 @@ class TransformerModel():
             scores = []
             i = 0
             for batch_candidate, batch_references in testloader:
-                cur_score = bleu_score(batch_candidate, batch_references)
+                cur_score = sentence_bleu(batch_references, batch_candidate, smoothing_function = SmoothingFunction().method4)
                 scores.append(cur_score)
                 i += 1
                 print('', file = output_file)

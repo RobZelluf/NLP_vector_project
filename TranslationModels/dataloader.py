@@ -167,8 +167,6 @@ class test_data_loader(object):
 
     def __iter__(self):
         with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
-            lst_candidate = []
-            lst_references = []
             printlst = []
             i = 0
             for linesrc, linetgt in zip(file_src, file_tgt):
@@ -178,8 +176,6 @@ class test_data_loader(object):
                 linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
                 linetgt = [*linetgt, '<EOS>']
 
-                lst_candidate.append(linetrans)
-                lst_references.append([linetgt])
                 printlst.append('-' * 30)
                 printlst.append('\n')
                 printlst.append('>' * 20 + '\tInput')
@@ -194,12 +190,9 @@ class test_data_loader(object):
                 printlst.append('\n')
                 printlst.append(' '.join(linetgt))
                 printlst.append('\n')
-
+                self.output_file.writelines(printlst)
+                printlst = []
+                yield linetrans, [linetgt]
                 i += 1
-                if i % self.batch_size == 0:
-                    self.output_file.writelines(printlst)
-                    yield lst_candidate, lst_references
-                    lst_candidate = []
-                    lst_references = []
-                    if (self.max_batches is not None) and (i >= self.max_batches):
-                        break
+                if (self.max_batches is not None) and (i >= self.max_batches):
+                    break
