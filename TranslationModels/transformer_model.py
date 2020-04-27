@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import time
 from torchtext.data.metrics import bleu_score
 
+import numpy as np
+
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 
