@@ -257,7 +257,7 @@ class RNNModel():
             scores = []
             i = 0
             for batch_candidate, batch_references in testloader:
-                cur_score = sentence_bleu(batch_references, batch_candidate, smoothing_function = SmoothingFunction().method4)
+                cur_score = sentence_bleu(batch_references, batch_candidate, smoothing_function = SmoothingFunction().method3)
                 scores.append(cur_score)
                 i += 1
                 print('', file = output_file)
