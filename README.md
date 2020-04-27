@@ -7,9 +7,18 @@
 
 Script location: /TranslationModels/main.py
 
-Example:
+Example for training:
 
 `python3 main.py -t --type rnn --src en --tgt ru --src_vm ft_en_d100_sg_st --tgt_vm ft_ru_d100_sg_st -m 100000 -b 4 -i 30 -g`
+
+Example for evaluation:
+
+`python3 main.py -e --type rnn --src en --tgt ru --src_vm ft_en_d100_sg_st --tgt_vm ft_ru_d100_sg_st -m 100000 -b 4 -i 30 -g`
+`python main.py -e --type rnn --src en --tgt ru --src_vm ft_en_d100_sg_st --tgt_vm ft_ru_d100_sg_st -m 1000`
+
+
+
+Description of parameters:
 
 | parameter         | short | default          | possible options   | example            |
 | ----------------- | ----- | ---------------- | ------------------ | ------------------ |
@@ -20,8 +29,8 @@ Example:
 | --type            |       | `tr`             | `rnn` / `tr`       |                    |
 | --src             |       | `en`             | `en` / `nl` / `ru` |                    |
 | --tgt             |       | `nl`             | `en` / `nl` / `ru` |                    |
-| --src_vm          |       |                  |                    | `ft_en_d100_sg_st` |
-| --tgt_vm          |       |                  |                    | `ft_en_d100_sg_st` |
+| --source_vm       |       |                  |                    | `ft_en_d100_sg_st` |
+| --target_vm       |       |                  |                    | `ft_en_d100_sg_st` |
 | --hidden_size     |       | 256              |                    |                    |
 | --max_batches     | -m    | None (all)       |                    |                    |
 | --batch_size      | -b    | 4                |                    |                    |
