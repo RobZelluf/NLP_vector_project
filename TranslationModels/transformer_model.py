@@ -357,6 +357,8 @@ class TransformerModel():
             if next_word==self.tgt_vm.vocab.get(EOS_token).index:
                 break
 
+        tgt_seq = tgt_seq[1:]
+
         if str_out:
           tgt_seq = tr.convert_tgt_index_seq_to_str(tgt_seq, self.tgt_vm)
 

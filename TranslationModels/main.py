@@ -168,6 +168,25 @@ if __name__=='__main__':
         plt.savefig(eval_file[:-3] + 'png')
         print('+ Evaluation done')
 
+    sample_sentences = [
+        "I want to buy a cat.",
+        "I want him to be a doctor.",
+        "I wish this trip would never end.",
+        "Whoever sells the most wins a trip to Disneyland.",
+        "Jordanian law does not impose any gender-based conditions upon passport applicants.",
+        "Let's consider this thought as an offer.",
+        "Do you want to talk about it?",
+        "How long have you been in Paris?"
+    ]
+
+    print()
+    print("Translation of sample sentences:")
+    for s in sample_sentences:
+        tr_res = translation_model.translate(s, True)
+        print('++ Input:', s)
+        print('++ Output:', " ".join(tr_res[:-1]))
+        print("================================================")
+
     print()
     for tr_input in args.target:
         tr_res = translation_model.translate(tr_input, True)
