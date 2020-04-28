@@ -84,7 +84,7 @@ if __name__=='__main__':
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
     parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 
-    parser.add_argument('--target', action = 'extend', type = str, help='Sentence to translate.', default = ['I want a dog'])
+    parser.add_argument('--target', action = 'append', type = str, help='Sentence to translate.', default = ['I want a dog'])
 
     args = parser.parse_args()
 
