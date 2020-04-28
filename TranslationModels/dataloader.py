@@ -163,7 +163,7 @@ class test_data_loader(object):
         self.max_batches = max_batches
         self.keep_chance = keep_chance
         self.device = device
-
+        self.input_lens = []
 
     def __iter__(self):
         with open(self.filesrc) as file_src, open(self.filetgt) as file_tgt:
@@ -175,7 +175,8 @@ class test_data_loader(object):
                 linetrans = self.model.translate(linesrc, str_out=True, device=self.device)
                 linetgt = preprocess_line(linetgt, remove_punctuation=self.remove_punctuation)
                 linetgt = [*linetgt, '<EOS>']
-
+                self.input_lens.append(len(linesrc.split()))
+                
                 printlst.append('-' * 30)
                 printlst.append('\n')
                 printlst.append('>' * 20 + '\tInput')

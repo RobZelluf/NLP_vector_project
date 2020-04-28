@@ -155,7 +155,7 @@ if __name__=='__main__':
             args.max_batches = 5000
 
         print('+ start evaluation')
-        scores = translation_model.eval(
+        scores, input_lens = translation_model.eval(
              path_src_test_file,
              path_tgt_test_file,
              eval_file,
@@ -166,6 +166,13 @@ if __name__=='__main__':
              )
         plt.hist(scores)
         plt.savefig(eval_file[:-3] + 'png')
+        plt.close()
+        plt.plot(scores, input_lens, 'o')
+        plt.xlim((0, 1))
+        plt.ylim(bottom = 0)
+        plt.xlabel('BLEU score')
+        plt.ylabel('Source sentence length')
+        plt.savefig(eval_file[:-4] + '_length_score.png')
         print('+ Evaluation done')
 
     sample_sentences = [

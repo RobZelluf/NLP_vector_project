@@ -410,5 +410,5 @@ class TransformerModel():
             print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)), file = output_file)
             print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)))
 
-        return scores
+        return scores, testloader.input_lens
 
