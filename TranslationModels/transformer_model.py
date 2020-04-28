@@ -5,6 +5,8 @@ import torch.nn.functional as F
 import time
 from torchtext.data.metrics import bleu_score
 
+import numpy as np
+
 from gensim.parsing.preprocessing import preprocess_string
 from gensim.parsing.preprocessing import strip_punctuation, strip_tags, strip_multiple_whitespaces
 
@@ -12,6 +14,8 @@ import TranslationModels.tr_model_utils as tr
 from TranslationModels.dataloader import tr_data_loader, test_data_loader
 from TranslationModels.const_vars import *
 
+from nltk.translate import bleu
+from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 
 def subsequent_mask(sz):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1).float()
@@ -299,7 +303,7 @@ class TransformerModel():
             end = time.time()
             dur = (int) (end - start)
             start = end
-            print("Epoch {0:d}: Loss:{1:0.3f}        \t{2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
+            print("Epoch {0:d}: Loss:{1:0.3f}             {2:d}m:{3:d}s".format(epoch + 1, loss.item(), dur // 60, dur % 60))
 
         torch.save(self.encoder.state_dict(), self.encoder_save_path)
         torch.save(self.decoder.state_dict(), self.decoder_save_path)
@@ -353,12 +357,14 @@ class TransformerModel():
             if next_word==self.tgt_vm.vocab.get(EOS_token).index:
                 break
 
+        tgt_seq = tgt_seq[1:]
+
         if str_out:
           tgt_seq = tr.convert_tgt_index_seq_to_str(tgt_seq, self.tgt_vm)
 
         return tgt_seq
 
-    def eval(self, filesrc, filetgt, output_file, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
+    def eval(self, filesrc, filetgt, output_file_name, batch_size=64, max_batches=None, device="cpu", keep_chance = 0.9):
         if self.encoder is None or self.decoder is None:
             print('Model not loaded!')
             return
@@ -366,30 +372,43 @@ class TransformerModel():
         self.encoder.to(device)
         self.decoder.to(device)
 
-        testloader = test_data_loader(
-            filesrc=filesrc,
-            filetgt=filetgt,
-            output_file=output_file,
-            model = self,
-            batch_size=batch_size,
-            max_batches=max_batches,
-            keep_chance = keep_chance,
-            device = device
-        )
+        with open(output_file_name, 'w') as output_file:
+            testloader = test_data_loader(
+                filesrc=filesrc,
+                filetgt=filetgt,
+                output_file=output_file,
+                model = self,
+                batch_size=batch_size,
+                max_batches=max_batches,
+                keep_chance = keep_chance,
+                device = device
+            )
 
-        self.encoder.eval()
-        self.decoder.eval()
+            self.encoder.eval()
+            self.decoder.eval()
 
-        start = time.time()
-        
-        score = 0
-        i = 0
-        for batch_candidate, batch_references in testloader:
-            cur_score = bleu_score(batch_candidate, batch_references)
-            score += cur_score
-            i += 1
-            print('Batch {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
-        score /= i
+            start = time.time()
+            
+            scores = []
+            i = 0
+            for batch_candidate, batch_references in testloader:
+                cur_score = sentence_bleu(batch_references, batch_candidate, smoothing_function = SmoothingFunction().method3)
+                scores.append(cur_score)
+                i += 1
+                print('', file = output_file)
+                print('Sample {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score))
+                print('', file = output_file)
+                print('Sample {0:d}, BLEU score: {1:0.4f}'.format(i, cur_score), file = output_file)
+                print('', file = output_file)
+                print('=' * 30, file = output_file)
+                print('', file = output_file)
 
-        return score
+            print('=' * 50, file = output_file)
+            print('', file = output_file)
+            print('= ' * 25, file = output_file)
+            print('', file = output_file)
+            print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)), file = output_file)
+            print('Average BLEU score: {0:0.4f}, minimum score: {1:0.4f}, maximum score: {2:0.4f}, median score: {3:0.4f}'.format(np.mean(scores), min(scores), max(scores), np.median(scores)))
+
+        return scores
 

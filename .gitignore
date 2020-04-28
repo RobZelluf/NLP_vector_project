@@ -131,14 +131,6 @@ dmypy.json
 /vector_models/
 /.idea/
 /trained_models/
-/data/subtitle_data/
-/data/train_data/
-/data/translation_models/
+/data/
 /kept.p
 /lengths.p
-/data/vector_models/ft_en_d100_cbow_st.bin
-/data/vector_models/ft_en_d100_sg_st.bin
-/data/vector_models/ft_nl_d100_cbow_st.bin
-/data/vector_models/ft_nl_d100_sg_st.bin
-/data/vector_models/ft_ru_d100_cbow_st.bin
-/data/vector_models/ft_ru_d100_sg_st.bin

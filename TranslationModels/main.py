@@ -16,6 +16,7 @@ from TranslationModels.rnn_model import RNNModel
 from TranslationModels.dataloader import tr_data_loader
 from TranslationModels.transformer_model import TransformerModel
 
+import matplotlib.pyplot as plt
 
 def extendPretrainedModel(model):
     length = model.vector_size
@@ -41,6 +42,7 @@ def read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin):
     print('+ preparing src vector model')
     if "ft" in path_src_vw_model_bin:
         vw_src_model = FastTextKeyedVectors.load(path_src_vw_model_bin)
+        vw_src_model.add(UNK_token, np.random.normal(0, 0.01, vw_src_model.vector_size))
     else:
         vw_src_model = KeyedVectors.load_word2vec_format(path_src_vw_model_bin, binary=True)
     print('++ src vector model read')
@@ -50,6 +52,7 @@ def read_vector_models(path_src_vw_model_bin, path_tgt_vw_model_bin):
     print('+ preparing tgt vector model')
     if "ft" in path_tgt_vw_model_bin:
         vw_tgt_model = FastTextKeyedVectors.load(path_tgt_vw_model_bin)
+        vw_tgt_model.add(UNK_token, np.random.normal(0, 0.01, vw_tgt_model.vector_size))
     else:
         vw_tgt_model = KeyedVectors.load_word2vec_format(path_tgt_vw_model_bin, binary=True)
     print('++ tgt vector model read')
@@ -77,7 +80,7 @@ if __name__=='__main__':
     parser.add_argument('--keep_chance', '-k', type = float, help='', default = 0.9)
     parser.add_argument('--max_batches', '-m', type = int, help='Maximum number of batches.', default = None)
     parser.add_argument('--batch_size', '-b', type = int, help='Batch size.', default = 4)
-    parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 30)
+    parser.add_argument('--iters', '-i', type = int, help='Number of iterations.', default = 5)
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
     parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 
@@ -140,25 +143,49 @@ if __name__=='__main__':
         path_src_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.src + '_test.txt' 
         path_tgt_test_file = './../data/train_data/' + min(args.src, args.tgt) + '_' + max(args.src, args.tgt) + args.unfiltered + '/' + args.tgt + '_test.txt'
 
-        eval_file = './../data/eval_results/' + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.txt'
-        if not os.path.exists("data/eval_results/"):
-            os.mkdir("data/eval_results/")
+        eval_file = './../data/eval_results/' + args.type + "_" + args.src + '_' + args.tgt + '_VM_' + args.source_vm + '_VM_' + args.target_vm + '.txt'
+        if not os.path.exists("./../data/eval_results/"):
+            os.mkdir("./../data/eval_results/")
 
         if not all([os.path.isfile(fname) for fname in [path_src_test_file, path_tgt_test_file]]):
             print('Some of the test files given do not exist, perhaps check defaults!')
             sys.exit()
 
+        if args.max_batches > 5000:
+            args.max_batches = 5000
+
         print('+ start evaluation')
-        score = translation_model.eval(
+        scores = translation_model.eval(
              path_src_test_file,
              path_tgt_test_file,
              eval_file,
-             batch_size=args.batch_size,
+             batch_size=1,
              max_batches = args.max_batches,
              keep_chance=args.keep_chance,
              device = 'cuda:0' if args.gpu else 'cpu',
              )
-        print('+ Evaluation done, BLEU score is: {0:0.4f}'.format(score))
+        plt.hist(scores)
+        plt.savefig(eval_file[:-3] + 'png')
+        print('+ Evaluation done')
+
+    sample_sentences = [
+        "I want to buy a cat.",
+        "I want him to be a doctor.",
+        "I wish this trip would never end.",
+        "Whoever sells the most wins a trip to Disneyland.",
+        "Jordanian law does not impose any gender-based conditions upon passport applicants.",
+        "Let's consider this thought as an offer.",
+        "Do you want to talk about it?",
+        "How long have you been in Paris?"
+    ]
+
+    print()
+    print("Translation of sample sentences:")
+    for s in sample_sentences:
+        tr_res = translation_model.translate(s, True)
+        print('++ Input:', s)
+        print('++ Output:', " ".join(tr_res[:-1]))
+        print("================================================")
 
     print()
     tr_input = args.target # 'I want a dog.'
