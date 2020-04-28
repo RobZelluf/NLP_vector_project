@@ -7,15 +7,15 @@ from gensim.models.keyedvectors import FastTextKeyedVectors
 import os
 import numpy as np
 
-en_words = ["monkey", "dog", "cat", "cow", "car", "bike", "taxi", "cab", "airplane", "plane", "train",
-            "one", "two", "three", "four", "five", "six",
-            "amsterdam", "london", "berlin", "rotterdam", "manchester",
-            "netherlands", "germany", "england"]
+en_words = [["monkey", "dog", "cat", "cow"], ["car", "bike", "airplane", "train"],
+            ["one", "two", "three", "four"],
+            ["amsterdam", "london", "berlin"],
+            ["netherlands", "germany", "england"]]
 
-nl_words = ["aap", "hond", "kat", "koe", "auto", "fiets", "taxi", "vliegtuig", "trein",
-            "een", "twee", "drie", "vier", "vijf", "zes",
-            "amsterdam", "london", "berlin", "rotterdam", "manchester",
-            "nederland", "engeland", "duitsland"]
+nl_words = [["aap", "hond", "kat", "koe"], ["auto", "fiets", "vliegtuig", "trein"],
+            ["een", "twee", "drie", "vier"],
+            ["amsterdam", "london", "berlin"],
+            ["nederland", "engeland", "duitsland"]]
 
 ru_words = ["обезьяна", "собака", "кошка", "корова", "машина", "велосипед", "такси", "самолет", "поезд",
             "один", "два", "три", "четыре", "пять", "шесть",
@@ -95,29 +95,46 @@ def get_subplot_for_data(lang="en"):
                 wv = KeyedVectors.load_word2vec_format(path, binary=True)
 
             words = all_words[lang]
+
+            total_words = []
+            for topic in words:
+                total_words.extend(topic)
+
             pca = PCA(n_components=2)
 
-            # pca.fit(wv[wv.vocab])
+            X = wv[wv.vocab]
+            mean = np.mean(X, axis=0)
+            var = np.var(X, axis=0)
 
-            X = wv[words]
-            X -= np.mean(X, axis=0)
-            X /= np.var(X, axis=0)
-            result = pca.fit_transform(X)
+            X -= mean
+            X /= var
+            pca.fit(X)
 
             # Start subplot
             subplot_num = i * 2 + (j + 1)
             axis = fig.add_subplot(2, 2, subplot_num)
 
-            axis.scatter(result[:, 0], result[:, 1])
-            for k, word in enumerate(words):
-                axis.annotate(word, xy=(result[k, 0], result[k, 1]), size=7)
+            for topic in words:
+                X = wv[topic]
+                X -= mean
+                X /= var
+                result = pca.transform(X)
 
-            axis.title.set_text(lang_full.capitalize() + " - " + plot_labels[type] + " using " + plot_labels[hp])
+                axis.scatter(result[:, 0], result[:, 1], s=5.0)
+                for k, word in enumerate(topic):
+                    axis.annotate(word, xy=(result[k, 0], result[k, 1]), size=7)
+
+                plt.setp(axis.get_xticklabels(), visible=False)
+                plt.setp(axis.get_yticklabels(), visible=False)
+
+            axis.set_title(lang_full.capitalize() + " - " + plot_labels[type] + " - " + plot_labels[hp],
+                           fontdict={"fontsize":12})
+    # plt.savefig("Figures/embedding_" + lang_short + ".png")
 
     plt.show()
 
 
-print("Starting subplots")
-get_subplot_for_data("ru")
-
+get_subplot_for_data("nl")
+# get_subplot_for_data("en")
+# get_subplot_for_data("ru")
 

@@ -5,7 +5,7 @@ import numpy as np
 import pickle as p
 
 
-def sample_lines(num_lines, threshold, only_kept=True, only_discarded=False, lang="nl"):
+def sample_lines(num_lines, threshold=0.55, only_kept=False, only_discarded=False, lang="nl"):
     _, lang_short = language_map(lang)
 
     path_en = "data/subtitle_data/en_" + lang_short + "/OpenSubtitles.en-" + lang_short + ".en"
@@ -155,12 +155,12 @@ def plot_cutoff(search_again=False):
 
     plt.plot(threshold_range, perc_kept)
     plt.plot(threshold_range, perc_length)
-    plt.vlines(best_threshold, min(perc_kept), max(perc_length))
-    plt.legend(["Percentage kept", "Line shrinkage percentage"])
-    plt.xlabel("Cut-off threshold in number of characters")
-    plt.ylabel("Percentage of corpus kept")
+    # plt.vlines(best_threshold, min(perc_kept), max(perc_length))
+    plt.legend(["Data kept (%)", "Average line length (%)"])
+    plt.xlabel("Cut-off threshold (%)")
+    plt.ylabel("%")
     plt.show()
 
 
-# plot_cutoff(False)
-sample_lines(20, 0.55, only_kept=True, lang="ru")
+# sample_lines(20, only_discarded=False)
+plot_cutoff(False)
