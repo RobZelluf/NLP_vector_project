@@ -84,7 +84,7 @@ if __name__=='__main__':
     parser.add_argument('--gpu', '-g', action = 'store_true', help='Should training be done on GPU.')
     parser.add_argument('--unfiltered', '-u', action = 'store_const', help='Use unfiltered data.', const = '', default = '_filtered')
 
-    parser.add_argument('--target', type = str, help='Sentence to translate.', default = 'I want a dog')
+    parser.add_argument('--target', action = 'extend', type = str, help='Sentence to translate.', default = ['I want a dog'])
 
     args = parser.parse_args()
 
@@ -188,11 +188,12 @@ if __name__=='__main__':
         print("================================================")
 
     print()
-    tr_input = args.target # 'I want a dog.'
-    tr_res = translation_model.translate(tr_input, True)
-    print('+ Example translation:')
-    print('++ Input:', tr_input)
-    print('++ Output:', tr_res)
+    for tr_input in args.target:
+        tr_res = translation_model.translate(tr_input, True)
+        print('+ Example translation:')
+        print('++ Input:', tr_input)
+        print('++ Output:', tr_res)
+        print('\n\n')
 
     print()
     print('done!')
