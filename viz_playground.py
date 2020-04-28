@@ -7,20 +7,23 @@ from gensim.models.keyedvectors import FastTextKeyedVectors
 import os
 import numpy as np
 
-en_words = [["monkey", "dog", "cat", "cow"], ["car", "bike", "airplane", "train"],
+en_words = [["monkey", "dog", "cat", "cow"],
+            ["car", "bike", "airplane", "train"],
             ["one", "two", "three", "four"],
             ["amsterdam", "london", "berlin"],
             ["netherlands", "germany", "england"]]
 
-nl_words = [["aap", "hond", "kat", "koe"], ["auto", "fiets", "vliegtuig", "trein"],
+nl_words = [["aap", "hond", "kat", "koe"],
+            ["auto", "fiets", "vliegtuig", "trein"],
             ["een", "twee", "drie", "vier"],
             ["amsterdam", "london", "berlin"],
             ["nederland", "engeland", "duitsland"]]
 
-ru_words = ["обезьяна", "собака", "кошка", "корова", "машина", "велосипед", "такси", "самолет", "поезд",
-            "один", "два", "три", "четыре", "пять", "шесть",
-            "амстердам", "лондон", "берлин", "манчестер",
-            "германия", "англия"]
+ru_words = [["обезьяна", "собака", "кошка", "корова"],
+            ["машина", "велосипед", "самолет", "поезд"],
+            ["один", "два", "три", "четыре"],
+            ["амстердам", "лондон", "берлин"],
+            ["германия", "англия"]]
 
 all_words = {"nl": nl_words, "en": en_words, "ru": ru_words}
 
